@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS chess_table;
+DROP EXTENSION IF EXISTS chess;
+
