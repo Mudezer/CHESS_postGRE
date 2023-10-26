@@ -20,8 +20,8 @@ typedef struct{
     char turn; // à qui de jouer
     char castling[4]; // roque
     char en_passant[2]; // en passant
-    char halfmove_clock; // halfmove clock
-    char fullmove_number; // each 2 halfmoves clock
+    int halfmove_clock; // halfmove clock
+    int fullmove_number; // each 2 halfmoves clock
 
 } postgres_chessboard;
 
