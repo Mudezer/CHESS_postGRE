@@ -2,16 +2,28 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include 
-
 
 
 #define BOARD_SIZE 8
 #define BOARD_SIZE_SQUARE 64
 #define MAX_FEN_LENGTH 100
 
+/*****************************************************************************/
 
+/* Structure to represent the chessgame */
+
+typedef struct
+{
+    string     halfMove,
+    int        halfMoveNumber;
+} ChessHalfMove;
+
+typedef struct
+{
+    string      pgn,
+    ChessHalfMove[] halfMoves;
+
+} ChessGame;
 
 typedef struct{
 
