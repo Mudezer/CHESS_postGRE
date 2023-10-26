@@ -3,11 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include 
+
 
 
 #define BOARD_SIZE 8
 #define BOARD_SIZE_SQUARE 64
 #define MAX_FEN_LENGTH 100
+
+
 
 typedef struct{
 
