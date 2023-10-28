@@ -10,21 +10,22 @@
 
 /*****************************************************************************/
 
-/* Structure to represent the chessgame */
-
+/* Structure to represent a half move */
 typedef struct
 {
-    string     halfMove,
-    int        halfMoveNumber;
+    char*       halfMove;
+    int         halfMoveNumber;
 } ChessHalfMove;
 
+/* Structure to represent the chessgame */
 typedef struct
 {
-    string      pgn,
-    ChessHalfMove[] halfMoves;
+    char*           pgn;
+    ChessHalfMove   halfMoves[MAX_FEN_LENGTH];
 
 } ChessGame;
 
+/* Structure to represent the chessboard */
 typedef struct{
 
     char fen[MAX_FEN_LENGTH]; //
