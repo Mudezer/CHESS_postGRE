@@ -1,0 +1,11 @@
+# ignore everything
+*
+
+# uningore folders
+!/**/
+
+# uningore files with extensions
+!*.*
+
+# ignore mac config
+.DS_Store
