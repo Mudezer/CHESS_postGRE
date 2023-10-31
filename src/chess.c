@@ -54,13 +54,8 @@ static ChessMove * chessMove_parse(char *pgn)
         }
         token = strtok(NULL, " ");
         chessMoves[moveNumber-1] = chessMove_make(fm, sm, moveNumber);
+        sm = NULL;
     }
 
     return chessMoves;
 }
-
-
-
-
-
-
