@@ -2,7 +2,7 @@
  * chess.c
  */
 
-#include "postgres.h"
+//#include "postgres.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,19 +11,19 @@
 
 static ChessMove * chessMove_make(char *firstHalfMove,char *secondHalfMove, int moveNumber)
 {
-    ChessMove *c = palloc0(sizeof(ChessMove));
-    c->firstHalfMove = firstHalfMove;
-    c->secondHalfMove = secondHalfMove;
-    c->moveNumber = moveNumber;
-    // printf("%s\n", c->firstHalfMove);
-    // printf("%s\n", c->secondHalfMove);
-    return c;
+    ChessMove *move = malloc(sizeof(ChessMove));
+    strcpy(move->firstHalfMove, firstHalfMove);
+    strcpy(move->secondHalfMove, secondHalfMove);
+    move->moveNumber = moveNumber;
+
+    return move;
 }
 
 void print_moves(ChessMove *moves) //for debug purposes
 {
     for(int i = 0; i < 4; i++)
     {
+        printf("%d\n", moves[i].moveNumber);
         printf("%s\n", moves[i].firstHalfMove);
         printf("%s\n", moves[i].secondHalfMove);
     }
@@ -31,19 +31,16 @@ void print_moves(ChessMove *moves) //for debug purposes
 
 static ChessGame * chessGame_make(char *pgn, ChessMove* moves)
 {
-    ChessGame *c = (ChessGame*)palloc0(sizeof(ChessMove)*MAX_PGN_LENGTH+sizeof(ChessGame));
-    c->pgn = pgn;
-    //print_moves(moves);
-    c->moves = moves;
-    //print_moves(c->moves);
-    //printf("%s\n", c->moves[2].firstHalfMove);
-    //printf("%s\n", c->moves[2].secondHalfMove);
-    return c;
+    ChessGame *game = (ChessGame*)malloc(sizeof(ChessMove)*MAX_PGN_LENGTH+sizeof(ChessGame));
+    game->pgn = pgn;
+    game->moves = moves;
+    
+    return game;
 }
 
 static ChessGame * chessMove_parse(char *pgn)
 {
-    ChessMove* chessMoves = (ChessMove*)palloc0(sizeof(ChessMove)*MAX_PGN_LENGTH); // Array of chess moves
+    ChessMove* chessMoves = (ChessMove*)malloc(sizeof(ChessMove)*MAX_PGN_LENGTH); // Array of chess moves
     char*   fm; 
     char*   sm;
     int nmb;
@@ -71,9 +68,6 @@ static ChessGame * chessMove_parse(char *pgn)
             parsecount = 0;
             token = strtok(NULL, " ");
         }
-        // printf("%d\n", moveIndex);
-        // printf("%s\n", fm);
-        // printf("%s\n", sm);
         chessMoves[moveIndex-1] = *chessMove_make(fm, sm, moveIndex);
         sm = NULL;
     }
@@ -85,36 +79,29 @@ static char * getFirstMoves(ChessGame *game, int n)
 {
     char *pgn = malloc(MAX_PGN_LENGTH);
     char str_move[10];
-    //printf("step 1\n");
-    strcat(pgn, "1. ");
-    printf("%s\n", pgn);
 
-    //printf("step 2\n");
-    char* tmp = game->moves[0].firstHalfMove;
-    printf("%s\n", tmp);
-    strcat(pgn, tmp);
-    printf("%s\n", pgn);
-    //("%s",game->moves[0].firstHalfMove);
+    /* Print of first halfmove */
+    strcat(pgn, "1. ");
+    char* first_move = game->moves[0].firstHalfMove;
+    strcat(pgn, first_move);
+    
     if(n == 1) return pgn;
     else 
     {
+        /* Print of second halfmove */
         strcat(pgn, " ");
-        //printf("step 4\n");
         strcat(pgn, game->moves[0].secondHalfMove);
-        printf("%s",game->moves[0].secondHalfMove);
-        printf("step 5\n");
+
         for(int i = 2; i < n+1; i++) {
-            sprintf(str_move,"%d. ", i/2);
-            printf("step \n");
-            strcat(pgn, str_move);
-            printf("step 7\n");
-            strcat(pgn, game->moves[i/2].firstHalfMove);
-            printf("step 8\n");
-            if(i % 2 != 0)
+            if(i % 2 == 0) {
+                sprintf(str_move," %i. ", (i/2)+1);
+                strcat(pgn, str_move);
+                strcat(pgn, game->moves[i/2].firstHalfMove);
+            }
+            else {
                 strcat(pgn, " ");
-                printf("step 9\n");
                 strcat(pgn, game->moves[i/2].secondHalfMove);
-                printf("step 10\n");
+            }   
         }
     }
     return pgn;
@@ -122,20 +109,13 @@ static char * getFirstMoves(ChessGame *game, int n)
 
 int main()
 {
-    printf("test init\n");
     const char *pgn = "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6";
     
     ChessGame *game = chessMove_parse(pgn);
-    print_moves(game->moves);
     
-    //printf("%s\n", game->moves[2].secondHalfMove);
-    //printf("%s\n", game->moves[2].firstHalfMove);
-    printf("%s\n", pgn);
-    printf("%s\n", pgn);
-    //printf("%s\n", game->moves[2].firstHalfMove);
+    printf("%s\n", getFirstMoves(game, 7));
 
-    
-    //printf("%s\n", getFirstMoves(game, 4));
     free(game);
+
     return 0;
 }

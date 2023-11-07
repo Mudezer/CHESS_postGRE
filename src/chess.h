@@ -11,8 +11,8 @@
 /* Structure to represent a  move */
 typedef struct
 {
-    char*       firstHalfMove;
-    char*       secondHalfMove;
+    char        firstHalfMove[6];
+    char        secondHalfMove[6];
     int         moveNumber;
 } ChessMove;
 
