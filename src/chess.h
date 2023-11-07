@@ -20,7 +20,7 @@ typedef struct
 typedef struct
 {
     char*           pgn;
-    ChessMove       moves[MAX_PGN_LENGTH];
+    ChessMove*      moves;
 
 } ChessGame;
 
