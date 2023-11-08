@@ -268,8 +268,6 @@ static int hasOpening(ChessGame * game, ChessGame * opening)
 
 int main()
 {
-
-
     // Test the FEN to Struct
         char str[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     postgres_chessboard2 *c;
