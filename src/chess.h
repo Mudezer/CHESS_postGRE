@@ -6,13 +6,14 @@
 #define BOARD_SIZE_SQUARE 64
 #define MAX_FEN_LENGTH 100
 #define MAX_PGN_LENGTH 100
+#define MAX_MOVE_LENGTH 7
 
 
 /* Structure to represent a  move */
 typedef struct
 {
-    char        firstHalfMove[6];
-    char        secondHalfMove[6];
+    char        firstHalfMove[MAX_MOVE_LENGTH];
+    char        secondHalfMove[MAX_MOVE_LENGTH];
     int         moveNumber;
 } ChessMove;
 

@@ -77,7 +77,7 @@ static ChessGame * chessMove_parse(char *pgn)
 
 static char * getFirstMoves(ChessGame *game, int n)
 {
-    char *pgn = malloc(MAX_PGN_LENGTH);
+    char *pgn = malloc(MAX_PGN_LENGTH*MAX_MOVE_LENGTH);
     char str_move[10];
 
     /* Print of first halfmove */
@@ -105,6 +105,19 @@ static char * getFirstMoves(ChessGame *game, int n)
         }
     }
     return pgn;
+}
+
+static int hasOpening(ChessGame * game, ChessGame * opening)
+{
+    int isSame = 1;
+    int openingLength = sizeof(opening->moves)/sizeof(ChessMove);
+    
+    char *gameOpeningSAN = getFirstMoves(game, openingLength);
+    char *openingSAN = getFirstMoves(opening, openingLength);
+
+    if(strcmp(gameOpeningSAN, openingSAN) != 0) isSame = 0;
+
+    return isSame;
 }
 
 int main()
