@@ -12,7 +12,7 @@
 
 
 typedef struct{
-    char *castling; // roque
+    char *castling[4]; // roque
     int fullmove_number; // each 2 halfmoves clock
 } postgres_chessboard;
 
@@ -21,7 +21,7 @@ typedef struct{
 static postgres_chessboard * postgres_chessboard_make(char *castling, int fullmove_number)
 {
   postgres_chessboard *c = malloc(sizeof(postgres_chessboard));
-  c->castling = strdup(castling);
+  strcpy(c->castling, castling);
   c->fullmove_number = fullmove_number;
     printf("'%s'\n", c->castling);
     printf("'%d'\n", c->fullmove_number);

@@ -43,10 +43,11 @@ typedef struct
 
 
 typedef struct{
-    char *fen; // TODO fen[MAX_FEN_LENGTH];
-    char *turn; // turn à qui de jouer
-    char *castling; // castling[4] roque
-    char *en_passant; // en_passant[2]
+    char *fen[MAX_FEN_LENGTH]; 
+    char *state[BOARD_SIZE_SQUARE];
+    char *turn[1]; // turn à qui de jouer
+    char *castling[4]; // roque
+    char *en_passant[2]; 
     int halfmove_clock; // halfmove clock
     int fullmove_number; // each 2 halfmoves clock
 } postgres_chessboard2;
@@ -58,17 +59,17 @@ typedef struct{
 
 /*****************************************************************************/
 
-static postgres_chessboard2 * postgres_chessboard_make2(char *fen, char *turn, char *castling, char *en_passant, int halfmove_clock, int fullmove_number)
+static postgres_chessboard2 * postgres_chessboard_make2(char *fen, char *state, char *turn, char *castling, char *en_passant, int halfmove_clock, int fullmove_number)
 {
-  postgres_chessboard2 *c = malloc(sizeof(postgres_chessboard2));
-  c->fen = strdup(fen);
-  c->turn = strdup(turn);
-  c->castling = strdup(castling);
-  c->en_passant = strdup(en_passant);
-  c->halfmove_clock = halfmove_clock;
-  c->fullmove_number = fullmove_number;
-        
-  return c;
+    postgres_chessboard2 *c = malloc(sizeof(postgres_chessboard2));
+    strcpy(c->fen, fen);
+    strcpy(c->state, state);
+    strcpy(c->turn, turn);
+    strcpy(c->castling, castling);
+    strcpy(c->en_passant, en_passant);
+    c->halfmove_clock = halfmove_clock;
+    c->fullmove_number = fullmove_number;
+    return c;
 }
 
 
@@ -76,22 +77,25 @@ static postgres_chessboard2 * postgres_chessboard_make2(char *fen, char *turn, c
 static postgres_chessboard2 * fen_parse2(char * str)
 {
 
-    char *fen; //
-    char *turn; // à qui de jouer*/
-    char *castling; // roque
-    char *en_passant; // en passant
-    int halfmove_clock; // halfmove clock*/
-    int fullmove_number; // each 2 halfmoves clock
+    char *state;
+    char *turn;
+    char *castling;
+    char *en_passant; 
+    int halfmove_clock;
+    int fullmove_number;
 
     char* rest[14] = {0}; // 11 char pointers  
     size_t n = 0; 
 
+    char fen[strlen(str) + 1];
+    strcpy(fen, str);
+    printf("'%s'\n", fen);
+
     /*Parser for elements*/    
     char *ptr = strtok(str, " ");    
-
     rest[n++] = ptr; 
     printf("'%s'\n", ptr);
-    fen = ptr;
+    state = ptr;
 
     ptr = strtok(NULL, " ");
     rest[n++] = ptr; 
@@ -118,14 +122,14 @@ static postgres_chessboard2 * fen_parse2(char * str)
     printf("'%s'\n", ptr);
     fullmove_number = atoi(ptr);
 
-    return postgres_chessboard_make2(fen, turn, castling, en_passant, halfmove_clock, fullmove_number);
+    return postgres_chessboard_make2(fen, state, turn, castling, en_passant, halfmove_clock, fullmove_number);
 }
 
 
 static char * chessboard_to_str(const postgres_chessboard2 *c)
 {
-  char *str = malloc (sizeof (char) *100);
-  sprintf(str, "%s %s %s %s %d %d", c->fen,c->turn, c->castling, c->en_passant, c->halfmove_clock, c->fullmove_number);
+  char *str = malloc (sizeof (char) *200);
+  sprintf(str, "%s %s %s %s %s %d %d", c->fen, c->state, c->turn, c->castling, c->en_passant, c->halfmove_clock, c->fullmove_number);
 
   return str;
 }
@@ -269,7 +273,7 @@ static int hasOpening(ChessGame * game, ChessGame * opening)
 int main()
 {
     // Test the FEN to Struct
-        char str[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    char str[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1";
     postgres_chessboard2 *c;
     c = fen_parse2(str);
         /*printf("'%s'\n", c->fen);
