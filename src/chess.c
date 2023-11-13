@@ -2,7 +2,7 @@
  * chess.c
  */
 
-//#include "postgres.h"
+#include "postgres.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +61,7 @@ typedef struct{
 
 static postgres_chessboard2 * postgres_chessboard_make2(char *fen, char *state, char *turn, char *castling, char *en_passant, int halfmove_clock, int fullmove_number)
 {
+    // struct building phase
     postgres_chessboard2 *c = malloc(sizeof(postgres_chessboard2));
     strcpy(c->fen, fen);
     strcpy(c->state, state);
@@ -74,8 +75,10 @@ static postgres_chessboard2 * postgres_chessboard_make2(char *fen, char *state, 
 
 
 
-static postgres_chessboard2 * fen_parse2(char * str)
+static postgres_chessboard2 * fen_parse2(char * str) // on pourrati eventuellement le rename en postgres_chessboard_from_str
 {
+
+    //parsing phase
 
     char *state;
     char *turn;
@@ -122,6 +125,7 @@ static postgres_chessboard2 * fen_parse2(char * str)
     printf("'%s'\n", ptr);
     fullmove_number = atoi(ptr);
 
+    // return directly the struct
     return postgres_chessboard_make2(fen, state, turn, castling, en_passant, halfmove_clock, fullmove_number);
 }
 
@@ -264,8 +268,30 @@ static int hasOpening(ChessGame * game, ChessGame * opening)
 }
 
 
+static char chessboard_to_fen(const postgres_chessboard2 *c){ return c->fen;}
 
 /*****************************************************************************/
+
+/**
+ * The following functions are the link between the SQL and the C code
+*/
+Datum chessboard_in(PG_FUNCTION_ARGS);
+Datum chessboard_out(PG_FUNCTION_ARGS); // d'abord on déclare la fonction
+
+PG_FUNCTION_INFO_V1(chessboard_in); // lien entre SQL et C
+Datum chessboard_in(PG_FUNCTION ARGS){
+    char *str = PG_GETARG_CSTRING(0); // on récupère le string entrant du coté SQL
+    PG_RETURN_POINTER(fen_parse2(str)); // on renvoie le pointeur vers le struct C
+    // à noté que le coté SQL s'en fout du type de pointeur qu'on renvoie du moment qu'on lui indique que c'est un pointeur
+}
+
+PG_FUNCTION_INFO_V1(fen_out); // lien entre SQL et C
+Datum fen_out(PG_FUNCTION_ARGS){ // Datum c'est la manière de définir un data type générique
+    // ici on récupère le pointeur vers le SQL datatype du chessboard et on le cast en pointeur du struct C
+    // en bref la ligne suivante fait une conversion SQL datatype => struct C
+    postgres_chessboard2 *c = (postgres_chessboard2 *)PG_GETARG_POINTER(0); 
+    PG_RETURN_CSTRING(chessboard_to_fen(c)); // ici on récupère le string 'fen' sortant du struct et on l'envoie du coté SQL
+}
 
 
 
@@ -299,4 +325,6 @@ int main()
     return 0;
 }
 
-
+/**
+ * 
+*/

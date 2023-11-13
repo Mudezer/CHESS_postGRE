@@ -7,39 +7,41 @@ chessboard" to load this file. \quit
  * Input/Output
  ******************************************************************************/
 
-CREATE OR REPLACE FUNCTION 
-chessboard_in(cstring)
+CREATE OR REPLACE FUNCTION chessboard_in(cstring)
   RETURNS chessboard
   AS 'MODULE_PATHNAME'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION 
-chessboard_out(chessboard)
+CREATE OR REPLACE FUNCTION chessboard_out(chessboard)
   RETURNS cstring
   AS 'MODULE_PATHNAME'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION 
-chessboard_recv(internal)
-  RETURNS chessboard
-  AS 'MODULE_PATHNAME'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+-- CREATE OR REPLACE FUNCTION 
+-- chessboard_recv(internal)
+--   RETURNS chessboard
+--   AS 'MODULE_PATHNAME'
+--   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION 
-chessboard_send(chessboard)
-  RETURNS bytea
-  AS 'MODULE_PATHNAME'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+-- CREATE OR REPLACE FUNCTION 
+-- chessboard_send(chessboard)
+--   RETURNS bytea
+--   AS 'MODULE_PATHNAME'
+--   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE TYPE 
-chessboard (
-  internallength = 100,
-  input          =   chessboard_in,
-  output         =   chessboard_out,
-  receive        =   chessboard_recv,
-  send           =   chessboard_send,
-  alignment      = double
+CREATE TYPE chessboard (
+  INTERNALLENGTH =   1024, -- 1024 bytes, un peu overkill mais a mon avis on aura jamais plus grand haha
+  INPUT          =   chessboard_in,
+  OUTPUT         =   chessboard_out
 );
+
+CREATE TYPE chessgame(
+  INPUT          = chessgame_in, -- ou chessgame_in en vrai on s'en fout un peu juste faut être cohérent
+  OUTPUT         = chessgame_out,
+  INTERNALLENGTH = 1024
+);
+
+-- pas besoin du rcv ou send car ce sont des exemples d'I/O binaire voir: https://www.postgresql.org/docs/current/xtypes.html
 
 CREATE OR REPLACE FUNCTION 
 chessboard(text)
@@ -86,4 +88,7 @@ CREATE FUNCTION im(
   AS 'MODULE_PATHNAME', '
   chessboard_im'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+
+-- GETTERS
+
 
