@@ -25,23 +25,6 @@ PG_MODULE_MAGIC;
 
 /*****************************************************************************/
 
-/* Structure to represent the chessgame */
-/*
-typedef struct
-{
-    string     halfMove,
-    int        halfMoveNumber;
-} ChessHalfMove;
-
-typedef struct
-{
-    string      pgn,
-    ChessHalfMove[] halfMoves;
-
-} ChessGame;
-*/
-
-
 typedef struct{
     char *fen[MAX_FEN_LENGTH]; 
     char *state[BOARD_SIZE_SQUARE];
@@ -292,6 +275,30 @@ Datum fen_out(PG_FUNCTION_ARGS){ // Datum c'est la manière de définir un data 
     postgres_chessboard2 *c = (postgres_chessboard2 *)PG_GETARG_POINTER(0); 
     PG_RETURN_CSTRING(chessboard_to_fen(c)); // ici on récupère le string 'fen' sortant du struct et on l'envoie du coté SQL
 }
+
+// Chessboard's Getters
+
+
+Datum getBoard(PG_FUNCTION_ARGS);
+Datum getTurn(PG_FUNCTION_ARGS);
+Datum getCastling(PG_FUNCTION_ARGS);
+Datum getEnPassant(PG_FUNCTION_ARGS);
+Datum getHalfMoveClock(PG_FUNCTION_ARGS);
+Datum getFullMoveNumber(PG_FUNCTION_ARGS);
+Datum chessboardToString(PG_FUNCTION_ARGS);
+
+PG_FUNCTION_INFO_V1(getBoard);
+Datum getBoard(PG_FUNCTION_ARGS){
+    postgres_chessboard2 *c = (postgres_chessboard2 *)PG_GETARG_POINTER(0);
+    PG_RETURN_CSTRING(c->state);    
+}
+
+// Chessgame's Getters
+
+Datum getFirstMoves(PG_FUNCTION_ARGS);
+
+
+
 
 
 
