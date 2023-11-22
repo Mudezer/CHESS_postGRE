@@ -20,15 +20,16 @@ typedef struct
 /* Structure to represent the chessgame */
 typedef struct
 {
-    char*           pgn;
-    ChessMove*      moves;
+    char           pgn[MAX_PGN_LENGTH];
+    ChessMove      moves[MAX_PGN_LENGTH];
+    //ChessBoard     boards[MAX_PGN_LENGTH];
 
 } ChessGame;
 
 /* Structure to represent the chessboard */
 typedef struct{
 
-    char fen[MAX_FEN_LENGTH]; //
+    char fen[MAX_FEN_LENGTH];
     char board[BOARD_SIZE][BOARD_SIZE]; // état de la table
     char turn; // à qui de jouer
     char castling[4]; // roque
@@ -36,4 +37,18 @@ typedef struct{
     int halfmove_clock; // halfmove clock
     int fullmove_number; // each 2 halfmoves clock
 
-} postgres_chessboard;
+} ChessBoard;
+
+typedef struct{
+    char    move[10];
+    int     halfMoveNumber;
+    char    movedPiece;
+    int     endLocation[2];
+    int     startLocation[2];
+    int     capture ;
+    int     kingSideCastling;
+    int     queenSideCastling;
+    int     check;
+    int     pawnPromotion;
+    int     checkmate;
+} ChessHalfMove;
