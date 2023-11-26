@@ -2,7 +2,7 @@
  * chess.c
  */
 
-#include "postgres.h"
+//#include "postgres.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,11 +13,10 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "chess.h"
+#include "smallchesslib.h"
+//#include "utils/builtins.h"
+//#include "libpq/pqformat.h"
 
-/*#include <smallchesslib.h>
-#include "utils/builtins.h"
-#include "libpq/pqformat.h"
-*/
 
 PG_MODULE_MAGIC;
 
@@ -215,37 +214,20 @@ static ChessGame * chessMove_parse(char *pgn)
  * @param n the number of moves to print
  * @returns  n first moves of a ChessGame in PGN format
 */
-static char * getFirstMoves(ChessGame *game, int n)
+static char * getFirstMoves(char* gamePGN, int n)
 {
-    char *pgn = malloc(MAX_PGN_LENGTH*MAX_MOVE_LENGTH);
-    char str_move[10];
-
-    /* Print of first halfmove */
-    strcat(pgn, "1. ");
-    char* first_move = game->moves[0].firstHalfMove;
-    strcat(pgn, first_move);
-    
-    if(n == 1) return pgn;
-    else 
-    {
-        /* Print of second halfmove */
-        strcat(pgn, " ");
-        strcat(pgn, game->moves[0].secondHalfMove);
-
-        for(int i = 2; i < n+1; i++) {
-            if(i % 2 == 0) {
-                sprintf(str_move," %i. ", (i/2)+1);
-                strcat(pgn, str_move);
-                strcat(pgn, game->moves[i/2].firstHalfMove);
-            }
-            else {
-                strcat(pgn, " ");
-                strcat(pgn, game->moves[i/2].secondHalfMove);
-            }   
-        }
+    char* gamePGN_copy; strcpy(gamePGN_copy, gamePGN);
+    char* openingPGN;
+    int counter = 0;
+    char* tok = strtok(gamePGN_copy, " ");
+    while((counter < n) && (tok != NULL)) {
+        strcat(openingPGN, tok);
+        counter++;
+        tok = strtok(NULL, " ");
     }
-    return pgn;
+    return openingPGN;
 }
+
 
 
 /**
@@ -273,26 +255,58 @@ static int hasOpening(ChessGame * game, ChessGame * opening)
  * @param moveNumber the length of the interval to check
  * @returns 1 if the game has the board, 0 otherwise
 */
-/*static int hasBoard(ChessGame * game, ChessBoard * board, int moveNumber)
+static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
 {
+    int counter = 0;
     int isSame = 0;
-    for(int i = 0; i < moveNumber; i++)
+
+    // Board to find
+    SCL_Board *board_tofind = malloc(sizeof(SCL_Board));
+    SCL_boardFromFEN(*board_tofind, board_FEN);
+    char board_tofindStr[65];
+    strncpy(board_tofindStr, *board_tofind, 64);
+
+    // Boards of the game
+    char* firstMoves = getFirstMoves(gamePGN, moveNumber);
+    SCL_Record *record = malloc(sizeof(SCL_Record));
+    SCL_recordFromPGN(*record, firstMoves);
+    SCL_Board *board = malloc(sizeof(SCL_Board));
+    char boardStr[65];
+
+    while(counter < moveNumber)
     {
-        if(strcmp(board->fen, game->boards[i])) isSame = 1;
+        counter++;
+        SCL_recordApply(*record, *board, counter);
+        if(strcmp(boardStr, board_tofindStr) == 0) isSame = 1;
     }
+
+    free(board_tofind); 
+    free(board); 
+    free(record);
 
     return isSame;
 }
-*/
+
 
 /**
  * Getter of the board at a specific halfmove
 */
-/*static ChessBoard * getBoard(ChessGame * game, int moveNumber)
+static char * getBoard(char* gamePGN, int moveNumber)
 {
-    return game->boards[moveNumber];
+    char boardFEN[MAX_FEN_LENGTH];
+
+    SCL_Record *record = malloc(sizeof(SCL_Record));
+    SCL_recordFromPGN(*record, gamePGN);
+    SCL_Board *board = malloc(sizeof(SCL_Board));
+    SCL_recordApply(*record, *board, moveNumber);
+    SCL_boardToFEN(*board, boardFEN);
+
+    free(record);
+    free(board);
+
+    return boardFEN;
 }
-*/
+
 
 
 static char chessboard_to_fen(const ChessBoard *c){ return c->fen;}
@@ -659,7 +673,7 @@ void halfMoveParser(ChessHalfMove *halfMove) {
 /**
  * The following functions are the link between the SQL and the C code
 */
-Datum chessboard_in(PG_FUNCTION_ARGS);
+/*Datum chessboard_in(PG_FUNCTION_ARGS);
 Datum chessboard_out(PG_FUNCTION_ARGS); // d'abord on déclare la fonction
 
 PG_FUNCTION_INFO_V1(chessboard_in); // lien entre SQL et C
@@ -698,20 +712,40 @@ Datum getBoard(PG_FUNCTION_ARGS){
 
 Datum getFirstMoves(PG_FUNCTION_ARGS);
 
+*/
+
+/**
+*   TESTS
+*/
+void test_getFirstMoves() {
+    char* pgn = "1. e4 e5 2. Bc4 Nf6 3. Qf3 d6 4. d3 Nc6 5. b3 Nd4 6. Qe3 Nxc2+ 7. Ke2 Nxe3 8. Bxe3 Ng4 9. h3 Nxe3 10. fxe3 c5 11. Nf3 f6 12. Rf1 Qa5 13. Nbd2 Qc3 14. Rac1 Qb2 15. d4 Qxa2 16. dxc5 dxc5 17. Ra1 Qb2 18. Rfb1 Qc2 19. Ra3 b5 20. Bxb5+ Bd7 21.";
+    char* expected = "1. e4 e5 2. Bc4 Nf6 3. Qf3";
+    if(strcmp(getFirstMoves(pgn, 5), expected) == 0)
+        printf("Test getFirstMoves passed\n");
+    else    
+        printf("Test getFirstMoves failed\n");
+}
+
 
 
 int main()
 {
-    // Test the FEN to Struct
+    test_getFirstMoves();
+
+
+
+
+
+    /*// Test the FEN to Struct
     char str[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1";
     ChessBoard *c;
     c = fen_parse(str);
-        /*printf("'%s'\n", c->fen);
+        printf("'%s'\n", c->fen);
         printf("'%s'\n", c->turn);
         printf("'%s'\n", c->castling);
         printf("'%s'\n", c->en_passant);
         printf("'%d'\n", c->halfmove_clock);
-        printf("'%d'\n", c->fullmove_number);*/
+        printf("'%d'\n", c->fullmove_number);
    
     char *str2;
     str2 = chessboard_to_str(c);
@@ -724,7 +758,7 @@ int main()
     
     printf("%s\n", getFirstMoves(game, 7));
 
-    free(game);
+    free(game);*/
 
     return 0;
 }
