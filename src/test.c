@@ -5,60 +5,85 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "smallchesslib.h"
+#include "chess.h"
 
 #define BOARD_SIZE 8
 #define BOARD_SIZE_SQUARE 64
 #define MAX_FEN_LENGTH 100
 
 
-typedef struct{
-    char *castling[4]; // roque
-    int fullmove_number; // each 2 halfmoves clock
-} postgres_chessboard;
 
+/*****************************************************************************
+ * Make
+ *****************************************************************************/
 
-
-static postgres_chessboard * postgres_chessboard_make(char *castling, int fullmove_number)
+static ChessGame * chessgame_make(const char * pgn)
 {
-  postgres_chessboard *c = malloc(sizeof(postgres_chessboard));
-  strcpy(c->castling, castling);
-  c->fullmove_number = fullmove_number;
-    printf("'%s'\n", c->castling);
-    printf("'%d'\n", c->fullmove_number);
-  return c;
+    ChessGame *c = malloc(sizeof(ChessGame)); // TODO replace by palloc 
+    c->pgn = pgn;
+    SCL_recordFromPGN(c->record, pgn);
+    return c;
 }
 
-static postgres_chessboard * fen_parse(char * str)
+
+static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 {
-
-    char *castling[4]; // roque
-    int fullmove_number;
-
-    char* rest[12] = {0}; // 11 char pointers  
-    size_t n = 0; 
-
-    /*Parser for elements*/    
-    char *ptr = strtok(str, " ");    
-
-    rest[n++] = ptr; 
-    printf("'%s'\n", ptr);
-    *castling = ptr;
-        printf("'%s'\n", *castling);
-
-    ptr = strtok(NULL, " "); 
-    rest[n++] = ptr; 
-    printf("'%s'\n", ptr);
-    fullmove_number = atoi(ptr);
-        printf("'%d'\n", fullmove_number);
- 
-    return postgres_chessboard_make(*castling, fullmove_number);
-
+    ChessBoard *c = malloc(sizeof(ChessBoard)); // TODO replace by palloc 
+    SCL_boardFromFEN(c->board, fen);
+    strcpy(c->fen, fen);
+    return c;
 }
 
 
 
+/*****************************************************************************
+ * Parser & verification of errors TODO
+ *****************************************************************************/
 
+static ChessBoard * chessboard_parse(const char fen[MAX_FEN_LENGTH])
+{
+  /* // Test if the make is well done ?
+  char * a, b, c, d, e, f;
+  if (sscanf(fen, "%s %s %s %s %s %s", &a, &b, &c, &d, &e, &f) != 6)
+    ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+      errmsg("invalid input syntax for type %s: \"%s\"", "complex", str)));
+    */
+  return chessboard_make(fen);
+}
+
+
+static ChessGame * chessgame_parse(const char * pgn)
+{
+  /* // Test if the make is well done ?
+  char * a;
+  if (sscanf(fen, "%s", &a) != 1)
+    ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+      errmsg("invalid input syntax for type %s: \"%s\"", "complex", str)));
+    */
+  return chessgame_make(pgn);
+}
+
+
+/*****************************************************************************
+ * Cast functions
+ *****************************************************************************/
+
+static char * chessboard_to_str(const ChessBoard *c)
+{
+  return c->fen;
+}
+
+
+static char * chessgame_to_str(const ChessGame *c)
+{
+  return c->pgn;
+}
+
+
+
+/*****************************************************************************
+ * Main 
+ *****************************************************************************/
 
 int main()
 {
@@ -78,35 +103,30 @@ int main()
 
     char * pgn1 = "1.f3 e5 2. g4 Qh4 0-1";
     char * pgn2 = "1.f3 e5";
-    char * str0 = "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2"; 
-    //postgres_chessboard c;
-    //fen_parse(str);
-    SCL_Board board0;
+    char * str0 = "rnbqkbnr/pp1p1ppp/8/2p5/2BpP3/8/PPP2PPP/RNBQK1NR w KQkq c6 0 4"; 
+
+    
+    ChessBoard * CB1 = chessboard_parse(str0);
+        printf("'%s'\n", CB1->board);
+        printf("'%s'\n", CB1->fen);
+        printf("'%s'\n", chessboard_to_str(CB1));
+
+    ChessGame * CG1 = chessgame_parse(pgn2);
+        printf("'%s'\n", CG1->pgn);
+        // test record
+        SCL_Board board0;
+        SCL_boardInit(board0);
+        printf("'%s'\n", board0);
+        SCL_recordApply(CG1->record, board0, 2);
+        printf("'%s'\n", board0);
+        printf("'%s'\n", chessgame_to_str(CG1));
+
+
+
     SCL_Board board1; 
     SCL_Board board2; 
-    //SCL_boardInit(board1); // The initial state
-        //printf("'%s'\n", board);
-
-    SCL_boardFromFEN(board0, str0);
-        //printf("'%s'\n", board0);
-
-    //uint8_t squareFrom = SCL_stringToMove(*moveString, uint8_t *resultFrom, uint8_t *resultTo, char *resultPromotion);
-    //char *SCL_moveToString(SCL_Board board, uint8_t s0, uint8_t s1, char promotion, char *string);
-    //SCL_boardMakeMove(board, uint8_t squareFrom, uint8_t squareTo, char promotePiece);
-    
     SCL_Record r1;
     SCL_Record r2;
-
-    /*SCL_recordFromPGN(r, pgn); // The entire game is in the record
-        //printf("'%s'\n", r); // Not printable
-        printf("'%s'\n", pgn); // FEN print
-        printf("'%x'\n", r); // Not valid
-        printf("'%x'\n", *r); // Not valid
-        printf("'%u'\n", r); // Not valid
-        printf("'%u'\n", *r); // Not valid
-    */
-
-
 
     // HasOpening() not the good type for input and result & getBoard() almost done
     SCL_recordFromPGN(r1, pgn1);
@@ -114,13 +134,7 @@ int main()
     SCL_recordApply(r1, board1, 2); // The first n half-moves applied to the board -> getBoard() ALMOST DONE
     SCL_recordApply(r2, board2, 2);   
     uint8_t a = SCL_boardsDiffer(board1, board2);
-        printf("'%u'\n", a); // 0 is true & 1 false
+        //printf("'%u'\n", a); // 0 is true & 1 false
 
-    /*char * str[MAX_FEN_LENGTH];
-    SCL_boardToFEN(board, str); // To see the modification
-        printf("'%s'\n", board); // Board state without the others infos
-        printf("'%s'\n", str); // FEN print
-    */
-    
     return 0;
 }
