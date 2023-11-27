@@ -216,13 +216,23 @@ static ChessGame * chessMove_parse(char *pgn)
 */
 static char * getFirstMoves(char* gamePGN, int n)
 {
-    char* gamePGN_copy; strcpy(gamePGN_copy, gamePGN);
-    char* openingPGN;
+    char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
+    char *openingPGN = malloc(sizeof(char)*MAX_PGN_LENGTH);
     int counter = 0;
+    int incr = 0;
     char* tok = strtok(gamePGN_copy, " ");
+    strcat(openingPGN, tok);
+    tok = strtok(NULL, " ");
     while((counter < n) && (tok != NULL)) {
+        strcat(openingPGN, " ");
         strcat(openingPGN, tok);
-        counter++;
+        if(incr == 2)
+            incr = 0;
+        else {
+            counter++;
+            incr++;
+            }
+        
         tok = strtok(NULL, " ");
     }
     return openingPGN;
@@ -235,16 +245,11 @@ static char * getFirstMoves(char* gamePGN, int n)
  * @param opening the opening to find
  * @returns 1 if the game has the opening, 0 otherwise
 */
-static int hasOpening(ChessGame * game, ChessGame * opening)
+static int hasOpening(char* gamePGN, char* openingPGN)
 {
-    int isSame = 1;
-    int openingLength = sizeof(opening->moves)/sizeof(ChessMove);
-    
-    char *gameOpeningSAN = getFirstMoves(game, openingLength);
-    char *openingSAN = getFirstMoves(opening, openingLength);
-
-    if(strcmp(gameOpeningSAN, openingSAN) != 0) isSame = 0;
-
+    int isSame = 0;
+    if(strstr(gamePGN, openingPGN) != NULL)
+        isSame = 1;
     return isSame;
 }
 
@@ -263,8 +268,9 @@ static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
     // Board to find
     SCL_Board *board_tofind = malloc(sizeof(SCL_Board));
     SCL_boardFromFEN(*board_tofind, board_FEN);
-    char board_tofindStr[65];
+    char board_tofindStr[65]; // Increase the size by 1 to accommodate the null terminator
     strncpy(board_tofindStr, *board_tofind, 64);
+    board_tofindStr[64] = '\0'; // Add the null terminator
 
     // Boards of the game
     char* firstMoves = getFirstMoves(gamePGN, moveNumber);
@@ -272,11 +278,12 @@ static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
     SCL_recordFromPGN(*record, firstMoves);
     SCL_Board *board = malloc(sizeof(SCL_Board));
     char boardStr[65];
-
     while(counter < moveNumber)
     {
         counter++;
         SCL_recordApply(*record, *board, counter);
+        strncpy(boardStr, *board, 64);
+        boardStr[64] = '\0';
         if(strcmp(boardStr, board_tofindStr) == 0) isSame = 1;
     }
 
@@ -291,13 +298,13 @@ static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
 /**
  * Getter of the board at a specific halfmove
 */
-static char * getBoard(char* gamePGN, int moveNumber)
+static char* getBoard(char* gamePGN, int moveNumber)
 {
-    char boardFEN[MAX_FEN_LENGTH];
+        char* boardFEN = malloc(sizeof(char)*MAX_FEN_LENGTH);
 
-    SCL_Record *record = malloc(sizeof(SCL_Record));
+    SCL_Record *record = malloc(SCL_RECORD_MAX_SIZE);
     SCL_recordFromPGN(*record, gamePGN);
-    SCL_Board *board = malloc(sizeof(SCL_Board));
+    SCL_Board *board = malloc(SCL_RECORD_MAX_SIZE);
     SCL_recordApply(*record, *board, moveNumber);
     SCL_boardToFEN(*board, boardFEN);
 
@@ -718,20 +725,77 @@ Datum getFirstMoves(PG_FUNCTION_ARGS);
 *   TESTS
 */
 void test_getFirstMoves() {
-    char* pgn = "1. e4 e5 2. Bc4 Nf6 3. Qf3 d6 4. d3 Nc6 5. b3 Nd4 6. Qe3 Nxc2+ 7. Ke2 Nxe3 8. Bxe3 Ng4 9. h3 Nxe3 10. fxe3 c5 11. Nf3 f6 12. Rf1 Qa5 13. Nbd2 Qc3 14. Rac1 Qb2 15. d4 Qxa2 16. dxc5 dxc5 17. Ra1 Qb2 18. Rfb1 Qc2 19. Ra3 b5 20. Bxb5+ Bd7 21.";
-    char* expected = "1. e4 e5 2. Bc4 Nf6 3. Qf3";
-    if(strcmp(getFirstMoves(pgn, 5), expected) == 0)
+    char pgn[MAX_PGN_LENGTH] = "1. e4 e5 2. Bc4 Nf6";
+    char expected1[MAX_PGN_LENGTH] = "1. e4";
+    char expected2[MAX_PGN_LENGTH] = "1. e4 e5";
+    char expected3[MAX_PGN_LENGTH] = "1. e4 e5 2. Bc4";
+    char expected4[MAX_PGN_LENGTH] = "1. e4 e5 2. Bc4 Nf6";
+
+    int cond1 = strcmp(getFirstMoves(pgn, 1), expected1) == 0;
+    int cond2 = strcmp(getFirstMoves(pgn, 2), expected2) == 0;
+    int cond3 = strcmp(getFirstMoves(pgn, 3), expected3) == 0;
+    int cond4 = strcmp(getFirstMoves(pgn, 4), expected4) == 0;
+
+    if(cond1 && cond2 && cond3 && cond4)
         printf("Test getFirstMoves passed\n");
     else    
         printf("Test getFirstMoves failed\n");
 }
 
+void test_hasOpening() {
+    char game[MAX_PGN_LENGTH] ="1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3";
+    char opening1[MAX_PGN_LENGTH] = "1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6";
+    char opening2[MAX_PGN_LENGTH] = "1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4";
+    char opening3[MAX_PGN_LENGTH] = "1. e4 c5 2. Nf5 d6 3. d4";
+
+    int cond1 = hasOpening(game, opening1) == 1;
+    int cond2 = hasOpening(game, opening2) == 1;
+    int cond3 = hasOpening(game, opening3) == 0;
+
+    if(cond1 && cond2 && cond3)
+        printf("Test hasOpening passed\n");
+    else    
+        printf("Test hasOpening failed\n");
+}
+
+void test_hasBoard() {
+    char pgn[MAX_PGN_LENGTH] ="1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3";
+    char board_FEN[MAX_FEN_LENGTH] = "3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24";
+
+    int cond1 = hasBoard(pgn, board_FEN, 46) == 1;
+    int cond2 = hasBoard(pgn, board_FEN, 45) == 0;
+
+    if(cond1 && cond2)
+        printf("Test hasBoard passed\n");
+    else    
+        printf("Test hasBoard failed\n");
+}
+
+void test_getBoard() {
+    char pgn[MAX_PGN_LENGTH] ="1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3";
+    char expected1[MAX_FEN_LENGTH] = "rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3";
+    char expected2[MAX_FEN_LENGTH] = "r1bqkb1r/pp2pppp/2np1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 3 6";
+    char expected3[MAX_FEN_LENGTH] = "3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24";
+    char falseFEN[MAX_FEN_LENGTH] = "3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 25";
+
+    char* board1 = getBoard(pgn, 4);
+    char* board2 = getBoard(pgn, 10);
+    char* board3 = getBoard(pgn, 46);
+
+    int cond1 = strcmp(board1, expected1) == 0;
+    int cond2 = strcmp(board2, expected2) == 0;
+    int cond3 = strcmp(board3, expected3) == 0;
+    int cond4 = strcmp(board3, falseFEN) != 0;
+
+    if(cond1 && cond2 && cond3 && cond4)
+        printf("Test getBoard passed\n");
+    else    
+        printf("Test getBoard failed\n");
+}
 
 
 int main()
 {
-    test_getFirstMoves();
-
 
 
 
