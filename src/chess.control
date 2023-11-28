@@ -1,5 +1,5 @@
 # chess extension
 comment = 'Chess - input/output functions for chess type'
-default_version = '1.0'
+default_version = '0.1'
 module_pathname = '$libdir/chess'
 relocatable = true

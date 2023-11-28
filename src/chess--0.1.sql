@@ -29,17 +29,17 @@ CREATE OR REPLACE FUNCTION chessgame_out(chessgame)
 
 
 CREATE TYPE chessboard (
-  INTERNALLENGTH =   100, -- 1024 bytes, un peu overkill mais a mon avis on aura jamais plus grand haha
-  INPUT          =   chessboard_in,
-  OUTPUT         =   chessboard_out
+  internallength =   100,
+  input          =   chessboard_in,
+  output         =   chessboard_out
 );
 COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  INTERNALLENGTH = 1024
-  INPUT          = chessgame_in,
-  OUTPUT         = chessgame_out,
+  internallength = 1024,
+  input          = chessgame_in,
+  output         = chessgame_out
 );
 COMMENT ON TYPE chessgame IS 'chessgame datatype for PostgreSQL';
 
@@ -47,14 +47,12 @@ COMMENT ON TYPE chessgame IS 'chessgame datatype for PostgreSQL';
 
 CREATE OR REPLACE FUNCTION chessboard(text)
   RETURNS chessboard
-  AS 'MODULE_PATHNAME', '
-  chessboard_cast_from_text'
+  AS 'MODULE_PATHNAME', 'chessboard_cast_from_text'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 CREATE OR REPLACE FUNCTION text(chessboard)
   RETURNS text
-  AS 'MODULE_PATHNAME', '
-  chessboard_cast_to_text'
+  AS 'MODULE_PATHNAME', 'chessboard_cast_to_text'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 CREATE CAST (text as chessboard) WITH FUNCTION chessboard(text) AS IMPLICIT;
@@ -63,14 +61,12 @@ CREATE CAST (chessboard as text) WITH FUNCTION text(chessboard);
 
 CREATE OR REPLACE FUNCTION chessgame(text)
   RETURNS chessgame
-  AS 'MODULE_PATHNAME', '
-  chessgame_cast_from_text'
+  AS 'MODULE_PATHNAME', 'chessgame_cast_from_text'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 CREATE OR REPLACE FUNCTION text(chessgame)
   RETURNS text
-  AS 'MODULE_PATHNAME', '
-  chessgame_cast_to_text'
+  AS 'MODULE_PATHNAME', 'chessgame_cast_to_text'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 CREATE CAST (text as chessgame) WITH FUNCTION chessgame(text) AS IMPLICIT;
@@ -78,137 +74,19 @@ CREATE CAST (chessgame as text) WITH FUNCTION text(chessgame);
 
 /******************************************************************************
  * Constructor
- ******************************************************************************/
 
-CREATE FUNCTION chessboard(text)
+ CREATE FUNCTION chessboard(text)
   RETURNS chessboard
-  AS 'MODULE_PATHNAME', '
-  chessboard_constructor'
+  AS 'MODULE_PATHNAME', 'chessboard_constructor'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 
 CREATE FUNCTION chessgame(text)
   RETURNS chessgame
-  AS 'MODULE_PATHNAME', '
-  chessgame_constructor'
+  AS 'MODULE_PATHNAME', 'chessgame_constructor'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+ ******************************************************************************/
 
 
-
-/*****************************************************************************
- * Accessing values
- *****************************************************************************/
-
--- GETTERS
-
-CREATE OR REPLACE FUNCTION getBoard(chessboard) -- spécifier le nom de la fonction et son argument (la fonction peut avoir un nom différent du fichier C)
-RETURNS TEXT -- on indique son type de retour
--- la prochaine ligne permet de spécifier le chemin vers la fonction en C
--- ne pas oublier d'indiquer la fonction en C
-AS '$libdir/chess', 'getBoard'
-LANGUAGE C IMMUTABLE STRICT; -- on indique le langage, le fait que la fonction ne modifie pas la base de données
-
-CREATE OR REPLACE FUNCTION getTurn(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getTurn'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getCastling(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getCastling'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getEnPassant(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getEnPassant'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getHalfMoveClock(chessboard)
-RETURNS INTEGER
-AS '$libdir/chess', 'getHalfMoveClock'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getFullMoveNumber(chessboard)
-RETURNS INTEGER 
-AS '$libdir/chess', 'getFullMoveNumber'
-LANGUAGE C IMMUTABLE STRICT;
-
-
--- B-tree COMPARISON INDEX
-
--- TODO: create btreee comparison functions
-
--- GIN COMPARISON INDEX
-
-CREATE OPERATOR = (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_eq,
-  COMMUTATOR = =,
-  NEGATOR = <>,
-  RESTRICT = eqsel,
-  JOIN = eqjoinsel
-);
-COMMENT ON OPERATOR =(chessboard, chessboard) IS 'equals?';
-
-CREATE OPERATOR <> (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_ne,
-  COMMUTATOR = <>,
-  NEGATOR = =,
-  RESTRICT = neqsel,
-  JOIN = neqjoinsel
-);
-
-CREATE OPERATOR < (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_lt,
-  COMMUTATOR = >,
-  NEGATOR = >=,
-  RESTRICT = scalarltsel,
-  JOIN = scalarltjoinsel
-);
-
-CREATE OPERATOR <= (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_le,
-  COMMUTATOR = >=,
-  NEGATOR = >,
-  RESTRICT = scalarltsel,
-  JOIN = scalarltjoinsel
-);
-
-CREATE OPERATOR > (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_gt,
-  COMMUTATOR = <,
-  NEGATOR = <=,
-  RESTRICT = scalargtsel,
-  JOIN = scalargtjoinsel
-);
-
-CREATE OPERATOR >= (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_ge,
-  COMMUTATOR = <=,
-  NEGATOR = <,
-  RESTRICT = scalargtsel,
-  JOIN = scalargtjoinsel
-);
-
-CREATE OPERATOR CLASS gin_chessboard_ops
-DEFAULT FOR TYPE chessboard USING gin
-AS
-    OPERATOR 1 < ,
-    OPERATOR 2 <= ,
-    OPERATOR 3 = ,
-    OPERATOR 4 >= ,
-    OPERATOR 5 > ;
-    -- TODO : add comparison functions
 
 
