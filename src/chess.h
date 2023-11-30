@@ -2,38 +2,48 @@
  * chess.h 
  */
 
+#include "smallchesslib.h"
+
 #define BOARD_SIZE 8
-#define BOARD_SIZE_SQUARE 64
+#define SCL_BOARD_SQUARES 64
 #define MAX_FEN_LENGTH 100
 #define MAX_PGN_LENGTH 100
 #define MAX_MOVE_LENGTH 7
+#define SCL_BOARD_STATE_SIZE 69
 
 
-/* Structure to represent a  move */
-typedef struct
-{
-    char        firstHalfMove[MAX_MOVE_LENGTH];
-    char        secondHalfMove[MAX_MOVE_LENGTH];
-    int         moveNumber;
-} ChessMove;
+/* fmgr macros chessboard type */ //TODO put them in chess.h
 
-/* Structure to represent the chessgame */
+#define DatumGetChessBoardP(X)  ((ChessBoard *) DatumGetPointer(X))
+#define ChessBoardPGetDatum(X)  PointerGetDatum(X)
+#define PG_GETARG_ChessBoard_P(n) DatumGetChessBoardP(PG_GETARG_DATUM(n))
+#define PG_RETURN_ChessBoard_P(x) return ChessBoardPGetDatum(x)
+
+#define DatumGetChessGameP(X)  ((ChessGame *) DatumGetPointer(X))
+#define ChessGamePGetDatum(X)  PointerGetDatum(X)
+#define PG_GETARG_ChessGame_P(n) DatumGetChessGameP(PG_GETARG_DATUM(n))
+#define PG_RETURN_ChessGame_P(x) return ChessGamePGetDatum(x)
+
+
+
+/*****************************************************************************
+ * Structures
+ *****************************************************************************/
+
+// Structure to represent the chess game
 typedef struct
 {
     char*           pgn;
-    ChessMove*      moves;
+    SCL_Record      record;
 
 } ChessGame;
 
-/* Structure to represent the chessboard */
+
+// Structure to represent the chessboard
 typedef struct{
 
-    char fen[MAX_FEN_LENGTH]; //
-    char board[BOARD_SIZE][BOARD_SIZE]; // état de la table
-    char turn; // à qui de jouer
-    char castling[4]; // roque
-    char en_passant[2]; // en passant
-    int halfmove_clock; // halfmove clock
-    int fullmove_number; // each 2 halfmoves clock
+    char            fen[MAX_FEN_LENGTH];
+    SCL_Board       board;
 
-} postgres_chessboard;
+} ChessBoard;
+
