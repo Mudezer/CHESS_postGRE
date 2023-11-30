@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <float.h>
 #include <math.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@ PG_MODULE_MAGIC;
 static ChessGame * chessgame_make(const char * pgn)
 {
     ChessGame *c = malloc(sizeof(ChessGame)); // TODO replace by palloc 
-    c->pgn = pgn;
+    strcpy(c->pgn, pgn);
     SCL_recordFromPGN(c->record, pgn);
     return c;
 }
@@ -47,6 +48,11 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
  * Parser & verification of errors TODO
  *****************************************************************************/
 
+/**
+ * Parse an input that has a FEN format to create a ChessBoard struct
+ * @param fen : the FEN format input
+ * @return a pointer to the ChessBoard struct
+*/
 static ChessBoard * chessboard_parse(const char fen[MAX_FEN_LENGTH])
 {
   /* // Test if the make is well done ?
@@ -59,6 +65,11 @@ static ChessBoard * chessboard_parse(const char fen[MAX_FEN_LENGTH])
 }
 
 
+/**
+ * Parse an input that has a PGN format to create a ChessGame struct
+ * @param pgn : the PGN format input
+ * @return a pointer to the ChessGame struct
+*/
 static ChessGame * chessgame_parse(const char * pgn)
 {
   /* // Test if the make is well done ?
@@ -74,13 +85,22 @@ static ChessGame * chessgame_parse(const char * pgn)
 /*****************************************************************************
  * Cast functions
  *****************************************************************************/
-
+/**
+ * Getter of the FEN format of a ChessBoard
+ * @param fen : the ChessBoard struct
+ * @return the FEN format of the ChessBoard
+*/
 static char * chessboard_to_str(const ChessBoard *c)
 {
   return c->fen;
 }
 
 
+/**
+ * Getter of the PGN format of a ChessGame
+ * @param fen : the ChessGame struct
+ * @return the PGN format of the ChessGame
+*/
 static char * chessgame_to_str(const ChessGame *c)
 {
   return c->pgn;
@@ -88,10 +108,10 @@ static char * chessgame_to_str(const ChessGame *c)
 
 
 
+
 /*****************************************************************************
  * C-SQL Linking Functions
  *****************************************************************************/
-
 
 /**
  * The following functions are the link between the SQL and the C code
@@ -142,6 +162,7 @@ Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 
 /************************************CAST*************************************/
 
+// VALIDATED
 PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
 Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
 {
@@ -150,7 +171,7 @@ Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
   PG_RETURN_ChessBoard_P(chessboard_parse(fen));
 }
 
-
+//VALIDATED
 PG_FUNCTION_INFO_V1(chessboard_cast_to_text);
 Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
 {
@@ -161,7 +182,7 @@ Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
 }
 
 
-
+//VALIDATED
 PG_FUNCTION_INFO_V1(chessgame_cast_from_text);
 Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
 {
@@ -170,7 +191,7 @@ Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
   PG_RETURN_ChessGame_P(chessgame_parse(pgn));
 }
 
-
+//VALIDATED
 PG_FUNCTION_INFO_V1(chessgame_cast_to_text);
 Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
 {
@@ -180,34 +201,123 @@ Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
   PG_RETURN_TEXT_P(out);
 }
 
-
-
-/*********************************CONTRUCTOR**********************************/
-
-
-/*
-PG_FUNCTION_INFO_V1(chessboard_constructor);
-Datum chessboard_constructor(PG_FUNCTION_ARGS)
-{
-  char * fen = PG_GETARG_CSTRING(0);
-  PG_RETURN_ChessBoard_P(chessboard_make(fen));
-}
-
-
-
-PG_FUNCTION_INFO_V1(chessgame_constructor);
-Datum chessgame_constructor(PG_FUNCTION_ARGS)
-{
-  char * pgn = PG_GETARG_CSTRING(0);
-  PG_RETURN_ChessGame_P(chessgame_make(pgn));
-}
-*/
-
-
-
 /*****************************************************************************
- * Functions
+ * Functions to implement
  *****************************************************************************/
 
 
-/*****************************************************************************/
+/**
+ * VALIDATED BY THE STREET
+ * @param gamePGN the game to analyze
+ * @param n the number of moves to print
+ * @returns  n first moves of a ChessGame in PGN format
+*/
+static char * getFirstMoves(char * gamePGN, int n)
+{
+    char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
+    char *openingPGN = malloc(sizeof(char)*MAX_PGN_LENGTH);
+    int counter = 0;
+    int incr = 0;
+    char* tok = strtok(gamePGN_copy, " ");
+    strcat(openingPGN, tok);
+    tok = strtok(NULL, " ");
+    while((counter < n) && (tok != NULL)) {
+        strcat(openingPGN, " ");
+        strcat(openingPGN, tok);
+        if(incr == 2)
+            incr = 0;
+        else {
+            counter++;
+            incr++;
+            }
+        
+        tok = strtok(NULL, " ");
+    }
+    return openingPGN;
+}
+
+
+
+/**
+ * VALIDATED BY THE STREET
+ * @param gamePGN the game to analyze
+ * @param opening the opening to find
+ * @returns 1 if the game has the opening, 0 otherwise
+*/
+static int hasOpening(char* gamePGN, char* openingPGN)
+{
+    int isSame = 0;
+    if(strstr(gamePGN, openingPGN) != NULL)
+        isSame = 1;
+    return isSame;
+}
+
+
+/**
+ * VALIDATED BY THE STREET
+ * @param game the game to analyze
+ * @param board the board to find
+ * @param moveNumber the length of the interval to check
+ * @returns 1 if the game has the board, 0 otherwise
+*/
+static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
+{
+    int counter = 0;
+    int isSame = 0;
+
+    // Board to find
+    SCL_Board *board_tofind = malloc(sizeof(SCL_Board));
+    SCL_boardFromFEN(*board_tofind, board_FEN);
+    char board_tofindStr[65]; // Increase the size by 1 to accommodate the null terminator
+    strncpy(board_tofindStr, *board_tofind, 64);
+    board_tofindStr[64] = '\0'; // Add the null terminator
+
+    // Boards of the game
+    char* firstMoves = getFirstMoves(gamePGN, moveNumber);
+    SCL_Record *record = malloc(sizeof(SCL_Record));
+    SCL_recordFromPGN(*record, firstMoves);
+    SCL_Board *board = malloc(sizeof(SCL_Board));
+    char boardStr[65];
+    while(counter < moveNumber)
+    {
+        counter++;
+        SCL_recordApply(*record, *board, counter);
+        strncpy(boardStr, *board, 64);
+        boardStr[64] = '\0';
+        if(strcmp(boardStr, board_tofindStr) == 0) isSame = 1;
+    }
+
+    free(board_tofind); 
+    free(board); 
+    free(record);
+
+    return isSame;
+}
+
+
+/**
+ * VALIDATED BY THE STREET
+ * TODO: Modif à faire
+ * Getter of the board at a specific halfmove
+*/
+static char* getBoard(char* gamePGN, int moveNumber)
+{
+    char* boardFEN = malloc(sizeof(char)*MAX_FEN_LENGTH);
+
+    SCL_Record *record = malloc(SCL_RECORD_MAX_SIZE);
+    SCL_recordFromPGN(*record, gamePGN);
+    SCL_Board *board = malloc(SCL_RECORD_MAX_SIZE);
+    SCL_recordApply(*record, *board, moveNumber);
+    SCL_boardToFEN(*board, boardFEN);
+
+    free(record);
+    free(board);
+
+    return boardFEN;
+}
+
+int main()
+{
+
+    return 0;
+}

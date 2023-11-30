@@ -72,21 +72,4 @@ CREATE OR REPLACE FUNCTION text(chessgame)
 CREATE CAST (text as chessgame) WITH FUNCTION chessgame(text) AS IMPLICIT;
 CREATE CAST (chessgame as text) WITH FUNCTION text(chessgame);
 
-/******************************************************************************
- * Constructor
-
- CREATE FUNCTION chessboard(text)
-  RETURNS chessboard
-  AS 'MODULE_PATHNAME', 'chessboard_constructor'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
-
-
-CREATE FUNCTION chessgame(text)
-  RETURNS chessgame
-  AS 'MODULE_PATHNAME', 'chessgame_constructor'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
- ******************************************************************************/
-
-
-
 

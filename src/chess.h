@@ -7,7 +7,7 @@
 #define BOARD_SIZE 8
 #define SCL_BOARD_SQUARES 64
 #define MAX_FEN_LENGTH 100
-#define MAX_PGN_LENGTH 100
+#define MAX_PGN_LENGTH 100 * MAX_MOVE_LENGTH
 #define MAX_MOVE_LENGTH 7
 #define SCL_BOARD_STATE_SIZE 69
 
@@ -33,7 +33,7 @@
 // Structure to represent the chess game
 typedef struct
 {
-    char*           pgn;
+    char            pgn[MAX_PGN_LENGTH];
     SCL_Record      record;
 
 } ChessGame;

@@ -6,9 +6,10 @@
 
 # uningore files with extensions
 !*.*
-
+src/Makefile
 # ignore mac config
 .DS_Store
+
 
 src/*.o
 src/*.bc
@@ -17,3 +18,4 @@ src/*dylib
 src/*.pc
 src/*.so
 src/*.out
+

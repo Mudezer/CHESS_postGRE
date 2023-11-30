@@ -12,32 +12,6 @@ RETURNS TEXT -- on indique son type de retour
 AS '$libdir/chess', 'getBoard'
 LANGUAGE C IMMUTABLE STRICT; -- on indique le langage, le fait que la fonction ne modifie pas la base de données
 
-CREATE OR REPLACE FUNCTION getTurn(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getTurn'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getCastling(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getCastling'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getEnPassant(chessboard)
-RETURNS TEXT
-AS '$libdir/chess', 'getEnPassant'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getHalfMoveClock(chessboard)
-RETURNS INTEGER
-AS '$libdir/chess', 'getHalfMoveClock'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION getFullMoveNumber(chessboard)
-RETURNS INTEGER 
-AS '$libdir/chess', 'getFullMoveNumber'
-LANGUAGE C IMMUTABLE STRICT;
-
-
 -- B-tree COMPARISON INDEX
 
 -- TODO: create btreee comparison functions
@@ -106,7 +80,7 @@ CREATE OPERATOR >= (
 );
 
 CREATE OPERATOR CLASS gin_chessboard_ops
-DEFAULT FOR TYPE chessboard USING gin
+DEFAULT FOR TYPE chessboard USING btree
 AS
     OPERATOR 1 < ,
     OPERATOR 2 <= ,
