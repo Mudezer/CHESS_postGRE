@@ -10,3 +10,9 @@
 # ignore mac config
 .DS_Store
 
+# ignore binary files
+
+src/*.o
+src/*.bc
+src/*.so
+src/*.dylib
