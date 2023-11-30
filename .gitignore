@@ -10,3 +10,10 @@
 # ignore mac config
 .DS_Store
 
+src/*.o
+src/*.bc
+src/*.a
+src/*dylib
+src/*.pc
+src/*.so
+src/*.out
