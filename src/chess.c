@@ -85,6 +85,7 @@ static ChessGame * chessgame_parse(const char * pgn)
 /*****************************************************************************
  * Cast functions
  *****************************************************************************/
+
 /**
  * Getter of the FEN format of a ChessBoard
  * @param fen : the ChessBoard struct
@@ -118,7 +119,6 @@ static char * chessgame_to_str(const ChessGame *c)
 */
 
 /*********************************IN/OUT**************************************/
-
 
 PG_FUNCTION_INFO_V1(chessboard_in); // Declare the function
 Datum chessboard_in(PG_FUNCTION_ARGS)
@@ -162,7 +162,6 @@ Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 
 /************************************CAST*************************************/
 
-// VALIDATED
 PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
 Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
 {
@@ -171,7 +170,7 @@ Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
   PG_RETURN_ChessBoard_P(chessboard_parse(fen));
 }
 
-//VALIDATED
+
 PG_FUNCTION_INFO_V1(chessboard_cast_to_text);
 Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
 {
@@ -182,7 +181,7 @@ Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
 }
 
 
-//VALIDATED
+
 PG_FUNCTION_INFO_V1(chessgame_cast_from_text);
 Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
 {
@@ -191,7 +190,7 @@ Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
   PG_RETURN_ChessGame_P(chessgame_parse(pgn));
 }
 
-//VALIDATED
+
 PG_FUNCTION_INFO_V1(chessgame_cast_to_text);
 Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
 {
@@ -201,19 +200,20 @@ Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
   PG_RETURN_TEXT_P(out);
 }
 
+
+
 /*****************************************************************************
  * Functions to implement
  *****************************************************************************/
 
-
 /**
- * VALIDATED BY THE STREET
- * @param gamePGN the game to analyze
+ * @param chessgame the game to analyze
  * @param n the number of moves to print
- * @returns  n first moves of a ChessGame in PGN format
+ * @returns ChessGame truncated to the n first moves
 */
-static char * getFirstMoves(char * gamePGN, int n)
+static ChessGame * getFirstMoves(ChessGame * chessgame, int n)
 {
+    char * gamePGN = chessgame->pgn;
     char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
     char *openingPGN = malloc(sizeof(char)*MAX_PGN_LENGTH);
     int counter = 0;
@@ -233,37 +233,59 @@ static char * getFirstMoves(char * gamePGN, int n)
         
         tok = strtok(NULL, " ");
     }
-    return openingPGN;
+    return chessgame_make(openingPGN);
 }
 
 
+PG_FUNCTION_INFO_V1(getFirstMoves2);
+Datum getFirstMoves2(PG_FUNCTION_ARGS)
+{
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  int32 n = PG_GETARG_INT32(1);
+  ChessGame *result = getFirstMoves(cgame, n);
+  PG_FREE_IF_COPY(cgame, 0);
+  PG_RETURN_ChessGame_P(result);
+}
+
 
 /**
- * VALIDATED BY THE STREET
- * @param gamePGN the game to analyze
+ * @param chessgame the game to analyze
  * @param opening the opening to find
- * @returns 1 if the game has the opening, 0 otherwise
+ * @returns bool true if the game has the opening, false otherwise
 */
-static int hasOpening(char* gamePGN, char* openingPGN)
+static bool hasOpening(ChessGame* chessgame, ChessGame* openingGame)
 {
-    int isSame = 0;
-    if(strstr(gamePGN, openingPGN) != NULL)
-        isSame = 1;
+    char * gamePGN = chessgame->pgn;
+    char * openingPGN = openingGame->pgn;
+    bool isSame = (strstr(gamePGN, openingPGN) != NULL);
     return isSame;
 }
 
 
-/**
- * VALIDATED BY THE STREET
- * @param game the game to analyze
- * @param board the board to find
- * @param moveNumber the length of the interval to check
- * @returns 1 if the game has the board, 0 otherwise
-*/
-static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
+PG_FUNCTION_INFO_V1(hasOpening2);
+Datum hasOpening2(PG_FUNCTION_ARGS)
 {
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  ChessGame *dgame = PG_GETARG_ChessGame_P(1);
+  bool result = hasOpening(cgame, dgame);
+  PG_FREE_IF_COPY(cgame, 0);
+  PG_FREE_IF_COPY(dgame, 1);
+  PG_RETURN_BOOL(result);
+}
+
+
+/**
+ * @param chessgame the game to analyze
+ * @param chessboard the board to find
+ * @param moveNumber the length of the interval to check
+ * @returns bool true if the game has the board, false otherwise
+*/
+static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNumber)
+{
+    char * gamePGN = chessgame->pgn;
+    char* board_FEN = chessboard->fen;
     int counter = 0;
-    int isSame = 0;
+    bool isSame = false;
 
     // Board to find
     SCL_Board *board_tofind = malloc(sizeof(SCL_Board));
@@ -284,7 +306,7 @@ static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
         SCL_recordApply(*record, *board, counter);
         strncpy(boardStr, *board, 64);
         boardStr[64] = '\0';
-        if(strcmp(boardStr, board_tofindStr) == 0) isSame = 1;
+        isSame = (strcmp(boardStr, board_tofindStr) == 0);
     }
 
     free(board_tofind); 
@@ -295,13 +317,28 @@ static int hasBoard(char* gamePGN, char* board_FEN, int moveNumber)
 }
 
 
-/**
- * VALIDATED BY THE STREET
- * TODO: Modif à faire
- * Getter of the board at a specific halfmove
-*/
-static char* getBoard(char* gamePGN, int moveNumber)
+PG_FUNCTION_INFO_V1(hasBoard2);
+Datum hasBoard2(PG_FUNCTION_ARGS)
 {
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  ChessBoard * cboard = PG_GETARG_ChessBoard_P(1);
+  int32 n = PG_GETARG_INT32(2);
+  bool result = hasBoard(cgame, cboard, n);
+  PG_FREE_IF_COPY(cgame, 0);
+  PG_FREE_IF_COPY(cboard, 1);
+  PG_RETURN_BOOL(result);
+}
+
+
+/**
+ * Getter of the board at a specific halfmove
+ * @param chessgame the entire game
+ * @param moveNumber the number of the first halfmoves
+ * @returns ChessBoard state at the specific halfmove
+*/
+static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
+{
+    char * gamePGN = chessgame->pgn;
     char* boardFEN = malloc(sizeof(char)*MAX_FEN_LENGTH);
 
     SCL_Record *record = malloc(SCL_RECORD_MAX_SIZE);
@@ -311,13 +348,18 @@ static char* getBoard(char* gamePGN, int moveNumber)
     SCL_boardToFEN(*board, boardFEN);
 
     free(record);
-    free(board);
 
-    return boardFEN;
+    return chessboard_make(boardFEN);
 }
 
-int main()
+
+PG_FUNCTION_INFO_V1(getBoard2);
+Datum getBoard2(PG_FUNCTION_ARGS)
 {
-
-    return 0;
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  int32 n = PG_GETARG_INT32(1);
+  ChessBoard *result = getBoard(cgame, n);
+  PG_FREE_IF_COPY(cgame, 0);
+  PG_RETURN_ChessBoard_P(result);
 }
+

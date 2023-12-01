@@ -45,31 +45,30 @@ COMMENT ON TYPE chessgame IS 'chessgame datatype for PostgreSQL';
 
 -- pas besoin du rcv ou send car ce sont des exemples d'I/O binaire voir: https://www.postgresql.org/docs/current/xtypes.html
 
-CREATE OR REPLACE FUNCTION chessboard(text)
-  RETURNS chessboard
-  AS 'MODULE_PATHNAME', 'chessboard_cast_from_text'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION text(chessboard)
-  RETURNS text
-  AS 'MODULE_PATHNAME', 'chessboard_cast_to_text'
-  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+/******************************************************************************
+ * Functions to implement
+ ******************************************************************************/
 
-CREATE CAST (text as chessboard) WITH FUNCTION chessboard(text) AS IMPLICIT;
-CREATE CAST (chessboard as text) WITH FUNCTION text(chessboard);
-
-
-CREATE OR REPLACE FUNCTION chessgame(text)
+CREATE FUNCTION getFirstMoves(chessgame, int4)
   RETURNS chessgame
-  AS 'MODULE_PATHNAME', 'chessgame_cast_from_text'
+  AS 'MODULE_PATHNAME', 'getFirstMoves2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE OR REPLACE FUNCTION text(chessgame)
-  RETURNS text
-  AS 'MODULE_PATHNAME', 'chessgame_cast_to_text'
+
+CREATE FUNCTION hasOpening(chessgame, chessgame)
+  RETURNS boolean
+  AS 'MODULE_PATHNAME', 'hasOpening2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE CAST (text as chessgame) WITH FUNCTION chessgame(text) AS IMPLICIT;
-CREATE CAST (chessgame as text) WITH FUNCTION text(chessgame);
+
+CREATE FUNCTION hasBoard(chessgame, chessboard, int4)
+  RETURNS boolean
+  AS 'MODULE_PATHNAME', 'hasBoard2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 
+CREATE FUNCTION getBoard(chessgame, int4)
+  RETURNS chessboard
+  AS 'MODULE_PATHNAME', 'getBoard2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
