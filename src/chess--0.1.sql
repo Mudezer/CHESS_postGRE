@@ -73,3 +73,30 @@ CREATE CAST (text as chessgame) WITH FUNCTION chessgame(text) AS IMPLICIT;
 CREATE CAST (chessgame as text) WITH FUNCTION text(chessgame);
 
 
+
+/******************************************************************************
+ * Functions to implement
+ ******************************************************************************/
+
+CREATE FUNCTION getFirstMoves(chessgame, int4)
+  RETURNS chessgame
+  AS 'MODULE_PATHNAME', 'getFirstMoves2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+
+
+CREATE FUNCTION hasOpening(chessgame, chessgame)
+  RETURNS boolean
+  AS 'MODULE_PATHNAME', 'hasOpening2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+
+
+CREATE FUNCTION hasBoard(chessgame, chessboard, int4)
+  RETURNS boolean
+  AS 'MODULE_PATHNAME', 'hasBoard2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
+
+
+CREATE FUNCTION getBoard(chessgame, int4)
+  RETURNS chessboard
+  AS 'MODULE_PATHNAME', 'getBoard2'
+  LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
