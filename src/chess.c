@@ -300,13 +300,13 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
     SCL_recordFromPGN(*record, firstMoves);
     SCL_Board *board = malloc(sizeof(SCL_Board));
     char boardStr[65];
-    while(counter < moveNumber)
+    while((counter < moveNumber) && (isSame == false))
     {
-        counter++;
         SCL_recordApply(*record, *board, counter);
         strncpy(boardStr, *board, 64);
         boardStr[64] = '\0';
         isSame = (strcmp(boardStr, board_tofindStr) == 0);
+        counter++;
     }
 
     free(board_tofind); 

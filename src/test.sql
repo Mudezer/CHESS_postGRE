@@ -1,6 +1,6 @@
 -- load this file with psql -d chess -f test.sql
 -- TODO : the 4th insert in chessgame_table is too long
--- TODO : correction of the GetFirstMoves return, not exactly matched ?
+-- TODO : correction of the GetFirstMoves return, not exactly matched ? & hasBoard too has a problem
 
 DROP EXTENSION IF EXISTS chess CASCADE;
 DROP TABLE IF EXISTS favorite_game;
@@ -89,11 +89,9 @@ SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame,'e4');
 
-
--- !!! Do not pass the test !!!
---SELECT *
---FROM chessgame_table
---WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 3);
+SELECT count(*)
+FROM chessgame_table
+WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 3);
 
 
 -- CONSTRUCTORS
@@ -102,6 +100,17 @@ WHERE hasOpening(p_chessgame,'e4');
 -- INDEXES
 
 create index btree on chessgame_table(p_chessgame);
+
+-- Alternative way to test the index since there is a pointer free problem
+explain SELECT *
+FROM chessgame_table
+ORDER BY p_chessgame;
+
+set session enable_seqscan=false; -- To force the query to use the btree & compare execution time
+
+explain SELECT *
+FROM chessgame_table
+ORDER BY p_chessgame;
 
 
 -- GETTERS
