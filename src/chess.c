@@ -161,7 +161,7 @@ Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 
 
 /************************************CAST*************************************/
-
+/*
 PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
 Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
 {
@@ -199,7 +199,7 @@ Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
   PG_FREE_IF_COPY(c, 0);
   PG_RETURN_TEXT_P(out);
 }
-
+*/
 
 
 /*****************************************************************************
@@ -363,3 +363,65 @@ Datum getBoard2(PG_FUNCTION_ARGS)
   PG_RETURN_ChessBoard_P(result);
 }
 
+
+
+
+/*****************************************************************************
+ * Operators for chessgame
+ *****************************************************************************/
+
+PG_FUNCTION_INFO_V1(chessgame_eq);
+Datum chessgame_eq(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) == 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_ne);
+Datum chessgame_ne(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) != 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_le);
+Datum chessgame_le(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) <= 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_lt);
+Datum chessgame_lt(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) < 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_ge);
+Datum chessgame_ge(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) >= 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_gt);
+Datum chessgame_gt(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) > 0);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_cmp);
+Datum chessgame_cmp(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = PG_GETARG_ChessGame_P(0);
+  ChessGame *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_INT32(strcmp(a->pgn, b->pgn));
+}
