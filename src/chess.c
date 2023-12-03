@@ -27,7 +27,7 @@ PG_MODULE_MAGIC;
 
 static ChessGame * chessgame_make(const char * pgn)
 {
-    ChessGame *c = palloc(sizeof(ChessGame)); // TODO replace by palloc 
+    ChessGame *c = palloc(sizeof(ChessGame));
     strcpy(c->pgn, pgn);
     SCL_recordFromPGN(c->record, pgn);
     return c;
@@ -36,7 +36,7 @@ static ChessGame * chessgame_make(const char * pgn)
 
 static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 {
-    ChessBoard *c = palloc(sizeof(ChessBoard)); // TODO replace by palloc 
+    ChessBoard *c = palloc(sizeof(ChessBoard)); 
     SCL_boardFromFEN(c->board, fen);
     strcpy(c->fen, fen);
     return c;
