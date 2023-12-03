@@ -96,7 +96,7 @@ select ('1. e4 c5 2. Bc4 Nf6' >= '1. e4 e5'); -- false
 
 select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- true
 select ('1. e4 f5 2. Bc4 Nf6' > '1. e4 e5'); -- true
-select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- false
+select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 f5'); -- false
 
 
 -- Queries, some from the project assignment
