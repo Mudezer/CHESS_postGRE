@@ -364,6 +364,17 @@ Datum getBoard2(PG_FUNCTION_ARGS)
 }
 
 
+/*****************************************************************************
+ * ICI ON FAIT DE LA CHIMIE
+*****************************************************************************/
+
+// PG_FUNCTION_INFO_V1(game_length);
+// Datum game_length(PG_FUNCTION_ARGS)
+// {
+//   ChessGame *game = PG_GETARG_ChessGame_P(0);
+//   int result = SCL_recordLength(game->record);
+//   PG_RETURN_INT(result);
+// }
 
 
 /*****************************************************************************
@@ -425,3 +436,20 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
   ChessGame *b = PG_GETARG_ChessGame_P(1);
   PG_RETURN_INT32(strcmp(a->pgn, b->pgn));
 }
+
+
+/*****************************************************************************
+ * OPERATOR FOR GIN INDEX
+*****************************************************************************/
+
+// PG_FUNCTION_INFO_V1()
+
+// PG_FUNCTION_INFO_V1(chessboard_eq);
+// Datum chessboard_eq(PG_FUNCTION_ARGS)
+// {
+//   ChessGame *a = PG_GETARG_P(0);
+//   ChessGame *b = PG_GETARG_P(1);
+
+
+
+// }

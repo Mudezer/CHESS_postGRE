@@ -148,6 +148,29 @@ explain SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame,'e4');
 
+explain SELECT count(*)
+FROM chessgame_table
+WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 3);
 
 -- GETTERS
 
+select ('1. e4 e5' = '1. e4 e5'); -- true
+select ('1. e4 e5' = '1. e4 c5'); -- false
+
+select ('1. e4 e5' != '1. e4 c5'); -- true
+select ('1. e4 e5' != '1. e4 e5'); -- false
+
+select ('1. e4 e5' <= '1. e4 e5'); -- true
+select ('1. e4 e5' <= '1. e4 e5 2. Bc4 Nf6'); -- true
+select ('1. e4 e5' <= '1. e4 c5 2. Bc4 Nf6'); -- false
+
+select ('1. e4 e5'<'1. e4 e5 2. Bc4 Nf6'); -- true
+select ('1. e4 e5'<'1. e4 c5 2. Bc4 Nf6'); -- false
+
+select ('1. e4 e5' >= '1. e4 e5'); -- true
+select ('1. e4 e5 2. Bc4 Nf6' >= '1. e4 e5'); -- true
+select ('1. e4 c5 2. Bc4 Nf6' >= '1. e4 e5'); -- false
+
+select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- true
+select ('1. e4 f5 2. Bc4 Nf6' > '1. e4 e5'); -- true
+select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- false
