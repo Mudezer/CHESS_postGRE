@@ -116,9 +116,9 @@ CREATE OPERATOR = (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_eq,
   COMMUTATOR = =,
-  NEGATOR = <>--,
-  --RESTRICT = eqsel,
-  --JOIN = eqjoinsel
+  NEGATOR = <>,
+  RESTRICT = eqsel,
+  JOIN = eqjoinsel
 );
 COMMENT ON OPERATOR =(chessgame, chessgame) IS 'equals?';
 
@@ -127,9 +127,9 @@ CREATE OPERATOR <= (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_le,
   COMMUTATOR = >=,
-  NEGATOR = >--,
-  --RESTRICT = scalarltsel,
-  --JOIN = scalarltjoinsel
+  NEGATOR = >,
+  RESTRICT = scalarltsel,
+  JOIN = scalarltjoinsel
 );
 
 CREATE OPERATOR < (
@@ -137,9 +137,9 @@ CREATE OPERATOR < (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_lt,
   COMMUTATOR = >,
-  NEGATOR = >=--,
-  --RESTRICT = scalarltsel,
-  --JOIN = scalarltjoinsel
+  NEGATOR = >=,
+  RESTRICT = scalarltsel,
+  JOIN = scalarltjoinsel
 );
 
 CREATE OPERATOR >= (
@@ -147,9 +147,9 @@ CREATE OPERATOR >= (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_ge,
   COMMUTATOR = <=,
-  NEGATOR = <--,
-  --RESTRICT = scalargtsel,
-  --JOIN = scalargtjoinsel
+  NEGATOR = <,
+  RESTRICT = scalargtsel,
+  JOIN = scalargtjoinsel
 );
 
 CREATE OPERATOR > (
@@ -157,9 +157,9 @@ CREATE OPERATOR > (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_gt,
   COMMUTATOR = <,
-  NEGATOR = <=--,
-  --RESTRICT = scalargtsel,
-  --JOIN = scalargtjoinsel
+  NEGATOR = <=,
+  RESTRICT = scalargtsel,
+  JOIN = scalargtjoinsel
 );
 
 

@@ -27,7 +27,7 @@ PG_MODULE_MAGIC;
 
 static ChessGame * chessgame_make(const char * pgn)
 {
-    ChessGame *c = malloc(sizeof(ChessGame)); // TODO replace by palloc 
+    ChessGame *c = palloc(sizeof(ChessGame)); // TODO replace by palloc 
     strcpy(c->pgn, pgn);
     SCL_recordFromPGN(c->record, pgn);
     return c;
@@ -36,7 +36,7 @@ static ChessGame * chessgame_make(const char * pgn)
 
 static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 {
-    ChessBoard *c = malloc(sizeof(ChessBoard)); // TODO replace by palloc 
+    ChessBoard *c = palloc(sizeof(ChessBoard)); // TODO replace by palloc 
     SCL_boardFromFEN(c->board, fen);
     strcpy(c->fen, fen);
     return c;
@@ -134,7 +134,7 @@ Datum chessboard_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
   ChessBoard *c = PG_GETARG_ChessBoard_P(0); // Pointer to the SQL datatype & cast it in struct C
   char *fen = chessboard_to_str(c); // To only have the FEN 
-  PG_FREE_IF_COPY(c, 0);
+  //PG_FREE_IF_COPY(c, 0);
   PG_RETURN_CSTRING(fen);
 }
 
@@ -154,7 +154,7 @@ Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
   ChessGame *c = PG_GETARG_ChessGame_P(0); // Pointer to the SQL datatype & cast it in struct C
   char *pgn = chessgame_to_str(c); // To only have the PGN 
-  PG_FREE_IF_COPY(c, 0);
+  //PG_FREE_IF_COPY(c, 0);
   PG_RETURN_CSTRING(pgn);
 }
 
@@ -215,7 +215,7 @@ static ChessGame * getFirstMoves(ChessGame * chessgame, int n)
 {
     char * gamePGN = chessgame->pgn;
     char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
-    char *openingPGN = malloc(sizeof(char)*MAX_PGN_LENGTH);
+    char *openingPGN = palloc(sizeof(char)*MAX_PGN_LENGTH);
     int counter = 0;
     int incr = 0;
     char* tok = strtok(gamePGN_copy, " ");
@@ -243,7 +243,7 @@ Datum getFirstMoves2(PG_FUNCTION_ARGS)
   ChessGame *cgame = PG_GETARG_ChessGame_P(0);
   int32 n = PG_GETARG_INT32(1);
   ChessGame *result = getFirstMoves(cgame, n);
-  PG_FREE_IF_COPY(cgame, 0);
+  //PG_FREE_IF_COPY(cgame, 0);
   PG_RETURN_ChessGame_P(result);
 }
 
@@ -268,8 +268,8 @@ Datum hasOpening2(PG_FUNCTION_ARGS)
   ChessGame *cgame = PG_GETARG_ChessGame_P(0);
   ChessGame *dgame = PG_GETARG_ChessGame_P(1);
   bool result = hasOpening(cgame, dgame);
-  PG_FREE_IF_COPY(cgame, 0);
-  PG_FREE_IF_COPY(dgame, 1);
+  //PG_FREE_IF_COPY(cgame, 0);
+  //PG_FREE_IF_COPY(dgame, 1);
   PG_RETURN_BOOL(result);
 }
 
@@ -288,7 +288,7 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
     bool isSame = false;
 
     // Board to find
-    SCL_Board *board_tofind = malloc(sizeof(SCL_Board));
+    SCL_Board *board_tofind = palloc(sizeof(SCL_Board));
     SCL_boardFromFEN(*board_tofind, board_FEN);
     char board_tofindStr[65]; // Increase the size by 1 to accommodate the null terminator
     strncpy(board_tofindStr, *board_tofind, 64);
@@ -296,9 +296,9 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
 
     // Boards of the game
     char* firstMoves = getFirstMoves(gamePGN, moveNumber);
-    SCL_Record *record = malloc(sizeof(SCL_Record));
+    SCL_Record *record = palloc(sizeof(SCL_Record));
     SCL_recordFromPGN(*record, firstMoves);
-    SCL_Board *board = malloc(sizeof(SCL_Board));
+    SCL_Board *board = palloc(sizeof(SCL_Board));
     char boardStr[65];
     while((counter < moveNumber) && (isSame == false))
     {
@@ -309,9 +309,9 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
         counter++;
     }
 
-    free(board_tofind); 
-    free(board); 
-    free(record);
+    //free(board_tofind); 
+    //free(board); 
+    //free(record);
 
     return isSame;
 }
@@ -324,8 +324,8 @@ Datum hasBoard2(PG_FUNCTION_ARGS)
   ChessBoard * cboard = PG_GETARG_ChessBoard_P(1);
   int32 n = PG_GETARG_INT32(2);
   bool result = hasBoard(cgame, cboard, n);
-  PG_FREE_IF_COPY(cgame, 0);
-  PG_FREE_IF_COPY(cboard, 1);
+  //PG_FREE_IF_COPY(cgame, 0);
+  //PG_FREE_IF_COPY(cboard, 1);
   PG_RETURN_BOOL(result);
 }
 
@@ -339,15 +339,15 @@ Datum hasBoard2(PG_FUNCTION_ARGS)
 static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 {
     char * gamePGN = chessgame->pgn;
-    char* boardFEN = malloc(sizeof(char)*MAX_FEN_LENGTH);
+    char* boardFEN = palloc(sizeof(char)*MAX_FEN_LENGTH);
 
-    SCL_Record *record = malloc(SCL_RECORD_MAX_SIZE);
+    SCL_Record *record = palloc(SCL_RECORD_MAX_SIZE);
     SCL_recordFromPGN(*record, gamePGN);
-    SCL_Board *board = malloc(SCL_RECORD_MAX_SIZE);
+    SCL_Board *board = palloc(SCL_RECORD_MAX_SIZE);
     SCL_recordApply(*record, *board, moveNumber);
     SCL_boardToFEN(*board, boardFEN);
 
-    free(record);
+    //free(record);
 
     return chessboard_make(boardFEN);
 }
@@ -359,7 +359,7 @@ Datum getBoard2(PG_FUNCTION_ARGS)
   ChessGame *cgame = PG_GETARG_ChessGame_P(0);
   int32 n = PG_GETARG_INT32(1);
   ChessBoard *result = getBoard(cgame, n);
-  PG_FREE_IF_COPY(cgame, 0);
+  //PG_FREE_IF_COPY(cgame, 0);
   PG_RETURN_ChessBoard_P(result);
 }
 
