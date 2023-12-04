@@ -241,7 +241,7 @@ PG_FUNCTION_INFO_V1(getFirstMoves2);
 Datum getFirstMoves2(PG_FUNCTION_ARGS)
 {
   ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
-  int n = PG_GETARG_INT32(1);
+  int32 n = PG_GETARG_INT32(1);
   ChessGame *result = getFirstMoves(cgame, n);
   //PG_FREE_IF_COPY(cgame, 0);
   PG_RETURN_ChessGame_P(result);
@@ -265,8 +265,8 @@ static bool hasOpening(ChessGame* chessgame, ChessGame* openingGame)
 PG_FUNCTION_INFO_V1(hasOpening2);
 Datum hasOpening2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
-  ChessGame *dgame = PG_GETARG_ChessGame_P(1);
+  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessGame *dgame = chessgame_make(PG_GETARG_ChessGame_P(1));
   bool result = hasOpening(cgame, dgame);
   //PG_FREE_IF_COPY(cgame, 0);
   //PG_FREE_IF_COPY(dgame, 1);
@@ -320,8 +320,8 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
 PG_FUNCTION_INFO_V1(hasBoard2);
 Datum hasBoard2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
-  ChessBoard * cboard = PG_GETARG_ChessBoard_P(1);
+  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessBoard * cboard = chessboard_make(PG_GETARG_ChessBoard_P(1));
   int32 n = PG_GETARG_INT32(2);
   bool result = hasBoard(cgame, cboard, n);
   //PG_FREE_IF_COPY(cgame, 0);
@@ -356,7 +356,7 @@ static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 PG_FUNCTION_INFO_V1(getBoard2);
 Datum getBoard2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
   int32 n = PG_GETARG_INT32(1);
   ChessBoard *result = getBoard(cgame, n);
   //PG_FREE_IF_COPY(cgame, 0);
@@ -384,9 +384,9 @@ Datum getBoard2(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessgame_eq);
 Datum chessgame_eq(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) == 0);
+  char *a = PG_GETARG_ChessGame_P(0);
+  char *b = PG_GETARG_ChessGame_P(1);
+  PG_RETURN_BOOL(strcmp(a, b) == 0);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_ne);

@@ -54,6 +54,7 @@ INSERT INTO chessboard_table(p_chessboard) VALUES
     ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
     ;
 
+
 select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1); -- 1. e4
 select hasOpening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1)); -- true but return false
 
