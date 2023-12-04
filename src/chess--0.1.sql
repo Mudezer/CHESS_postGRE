@@ -78,20 +78,20 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
 -- AS '$libdir/chess', 'game_length'
 -- LANGUAGE C IMMUTABLE STRICT;
 
-CREATE FUNCTION has_opening(game1 chessgame, game2 chessgame)
-RETURNS BOOLEAN
-AS 'SELECT get_first_moves(game1, 1) = get_first_moves(game2, 1)'
-LANGUAGE SQL IMMUTABLE STRICT;
+-- CREATE FUNCTION has_opening(game1 chessgame, game2 chessgame)
+-- RETURNS BOOLEAN
+-- AS 'SELECT get_first_moves(game1, 1) = get_first_moves(game2, 1)'
+-- LANGUAGE SQL IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION has_opening(game1 chessgame, game2 chessgame)
-RETURNS BOOLEAN
-AS 'SELECT get_first_moves(game1, len(game2)) = game2'
-LANGUAGE SQL IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION has_opening(game1 chessgame, game2 chessgame)
+-- RETURNS BOOLEAN
+-- AS 'SELECT get_first_moves(game1, len(game2)) = game2'
+-- LANGUAGE SQL IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
-RETURNS BOOLEAN
-AS 'SELECT getBoard(game, value) = board'
-LANGUAGE SQL IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
+-- RETURNS BOOLEAN
+-- AS 'SELECT getBoard(game, value) = board'
+-- LANGUAGE SQL IMMUTABLE STRICT;
 
 /******************************************************************************
  * Other functions to implement --- TODO add cstring for hasOpening

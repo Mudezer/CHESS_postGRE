@@ -211,7 +211,7 @@ Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
  * @param n the number of moves to print
  * @returns ChessGame truncated to the n first moves
 */
-static ChessGame * getFirstMoves(ChessGame * chessgame, int n)
+static ChessGame * getFirstMoves(ChessGame * chessgame, int n) //TODO: case no space after point
 {
     char * gamePGN = chessgame->pgn;
     char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
@@ -240,8 +240,8 @@ static ChessGame * getFirstMoves(ChessGame * chessgame, int n)
 PG_FUNCTION_INFO_V1(getFirstMoves2);
 Datum getFirstMoves2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
-  int32 n = PG_GETARG_INT32(1);
+  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
+  int n = PG_GETARG_INT32(1);
   ChessGame *result = getFirstMoves(cgame, n);
   //PG_FREE_IF_COPY(cgame, 0);
   PG_RETURN_ChessGame_P(result);
