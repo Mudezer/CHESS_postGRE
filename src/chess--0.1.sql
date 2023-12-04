@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION chessgame_out(chessgame)
 
 
 CREATE TYPE chessboard (
-  internallength =   100,
+  internallength =   -1, -- variable length :^)
   input          =   chessboard_in,
   output         =   chessboard_out
 );
@@ -37,7 +37,7 @@ COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  internallength = 1024,
+  internallength = -1, -- variable length
   input          = chessgame_in,
   output         = chessgame_out
 );
@@ -45,12 +45,18 @@ COMMENT ON TYPE chessgame IS 'chessgame datatype for PostgreSQL';
 
 -- pas besoin du rcv ou send car ce sont des exemples d'I/O binaire voir: https://www.postgresql.org/docs/current/xtypes.html
 
+/******************************************************************************
+ * Constructors
+ ******************************************************************************/
+
+ 
+
 
 /******************************************************************************
  * Accessing values --- TODO return text
  ******************************************************************************/
 
-CREATE FUNCTION getBoard(chessgame, int4)
+CREATE FUNCTION getBoard(chessgame, int)
   RETURNS chessboard
   AS 'MODULE_PATHNAME', 'getBoard2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
@@ -72,10 +78,10 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
 
 
 
--- CREATE FUNCTION game_length(chessgame) -- mourir??
+-- CREATE FUNCTION len(chessgame) -- mourir??
 -- RETURNS INT 
 -- -- AS 'SELECT array_length(string_to_array($1, '' ''), 1)' -- on aurait pu flex mais à mon avis ça fonctionne pas
--- AS '$libdir/chess', 'game_length'
+-- AS '$libdir/chess', 'len'
 -- LANGUAGE C IMMUTABLE STRICT;
 
 -- CREATE FUNCTION has_opening(game1 chessgame, game2 chessgame)
@@ -88,6 +94,10 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
 -- AS 'SELECT get_first_moves(game1, len(game2)) = game2'
 -- LANGUAGE SQL IMMUTABLE STRICT;
 
+-- CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
+-- RETURNS BOOLEAN
+-- AS 'SELECT getBoard(game, value) = board'
+-- LANGUAGE SQL IMMUTABLE STRICT;
 -- CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
 -- RETURNS BOOLEAN
 -- AS 'SELECT getBoard(game, value) = board'
@@ -228,10 +238,10 @@ AS
  * GIN support function
  ******************************************************************************/
 
--- CREATE OR REPLACE FUNCTION chessboard_overlap(chessgame, chessboard)
--- RETURNS BOOLEAN
--- AS 'MODULE_PATHNAME', 'chessboard_overlap'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_overlap(chessboard, chessboard)
+RETURNS BOOLEAN
+AS 'MODULE_PATHNAME', 'chessboard_overlap'
+LANGUAGE C IMMUTABLE STRICT;
 
 -- CREATE OR REPLACE FUNCTION chessboard_contains(chessgame, chessboard)
 -- RETURNS BOOLEAN
@@ -248,12 +258,12 @@ AS
 -- AS 'MODULE_PATHNAME', 'chessboard_eq'
 -- LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OPERATOR (
---   LEFTARG = chessgame,
---   RIGHTARG = chessboard,
---   PROCEDURE = chessboard_overlap,
---   COMMUTATOR = @@
--- );
+CREATE OPERATOR (
+  LEFTARG = chessboard,
+  RIGHTARG = chessboard,
+  PROCEDURE = chessboard_overlap,
+  COMMUTATOR = @@
+);
 
 -- CREATE OPERATOR @>(
 --   LEFTARG = chessgame,
@@ -262,8 +272,8 @@ AS
 -- );
 
 -- CREATE OPERATOR <@(
---   LEFTARG = chessgame,
---   RIGHTARG = chessboard,
+--   LEFTARG = chessboard,
+--   RIGHTARG = chessgame,
 --   PROCEDURE = chessboard_contained
 -- );
 
@@ -285,7 +295,8 @@ AS
 --     OPERATOR 2 @>, -- contains
 --     OPERATOR 3 <@, -- is contained by
 --     OPERATOR 4 =, -- equals
---     FUNCTION 1 chessboard_cmp() -- support function to compare this shit
+--     FUNCTION 1 chessboard_cmp(chessgame, chessboard) -- support function to compare this shit
+--     FUNCTION 2 extractValue
 
 
 

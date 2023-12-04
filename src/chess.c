@@ -83,7 +83,7 @@ static ChessGame * chessgame_parse(const char * pgn)
 
 
 /*****************************************************************************
- * Cast functions
+ * GETTERS
  *****************************************************************************/
 
 /**
@@ -368,14 +368,28 @@ Datum getBoard2(PG_FUNCTION_ARGS)
  * ICI ON FAIT DE LA CHIMIE
 *****************************************************************************/
 
-// PG_FUNCTION_INFO_V1(game_length);
-// Datum game_length(PG_FUNCTION_ARGS)
+// PG_FUNCTION_INFO_V1(len);
+// Datum len(PG_FUNCTION_ARGS)
 // {
-//   ChessGame *game = PG_GETARG_ChessGame_P(0);
+//   char *str = PG_GETARG_P(0);
 //   int result = SCL_recordLength(game->record);
 //   PG_RETURN_INT(result);
 // }
 
+// PG_FUNCTION_INFO_V1(chessboard_overlap);
+// Datum chessboard_overlap(PG_FUNCTION_ARGS)
+// {
+
+//   ChessGame *a = PG_GETARG_P(0);
+//   ChessBoard *b = PG_GETARG_P(1);
+
+//   int length = SCL_recordLength(a->record);
+
+//   for(int i=0, < length, i++){
+
+//   }
+  
+// }
 
 /*****************************************************************************
  * Operators for chessgame
