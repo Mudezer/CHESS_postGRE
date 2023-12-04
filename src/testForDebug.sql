@@ -50,10 +50,10 @@ INSERT INTO chessboard_table(p_chessboard) VALUES
 select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1); -- 1. e4
 select hasOpening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1)); -- true but return false
 
-
-
-
-
+-- explain analyze
+SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame,'1. e4');
 
 
 
