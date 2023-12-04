@@ -45,7 +45,16 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1.e4 c5 2.f4 e6 3.Nf3 Nc6 4.c3 d5 5.e5 f6 6.Na3 Nh6 7.Nc2 Qb6 8.d4 Bd7 9.Ne3 cxd4 10.cxd4 Bb4+ 11.Kf2 O-O 12.Kg3 fxe5 13.fxe5 Rac8 14.h4 Rxf3+ 15.gxf3 Nxd4 16.Bd3 Rf8 17.f4 Bc5 18.Rf1 Bb5 19.Bxb5 Qxb5 20.Kh3 Ne2 21.Ng2 Nf5 22.Kh2 Neg3 23.Rf3 Ne4 24.Qf1 Qe8 25.b4 Bd4 26.Rb1 Qh5 27.Rbb3 Rc8 28.Be3 Rc2 29.Kg1 Nxe3 30.Rfxe3 Nd2 31.Qd3 Rc1+ 32.Kh2 Nf1+ 33.Kh3 Nxe3 34.Nxe3 Qf3+ 35.Kh2 Rh1+  0-1'),
     ('1.d4 d5 2.c4 dxc4 3.e3 e5 4.Bxc4 exd4 5.exd4 Nf6 6.Nc3 Be7 7.Nf3 O-O 8.Be3 c6 9.h3 Nbd7 10.Bb3 Nb6 11.O-O Nfd5 12.a4 a5 13.Ne5 Be6 14.Bc2 f5 15.Qe2 f4 16.Bd2 Qe8 17.Rae1 Bf7 18.Qe4 g6 19.Bxf4 Nxf4 20.Qxf4 Bc4 21.Qh6 Bxf1 22.Bxg6 hxg6 23.Nxg6 Nc8 24.Qh8+ Kf7 25.Qh7+ Kf6 26.Nf4 Bd3 27.Re6+ Kg5 28.Qh6+ Kf5 29.g4+  1-0'),
     ('1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 g5 5.Nc3 Bg7 6.d4 Nc6 7.e5 Nge7 8.Nf3 Qh5 9.Ne4 h6 10.Nf6+ Bxf6 11.exf6 d5 12.Bd3 Nf5 13.Qe1+ Kd8 14.Ne5 Nfxd4 15.c3 Nxe5 16.Qxe5 Nc6 17.Qxd5+ Ke8 18.Bb5 Be6 19.Bxc6+ Kf8 20.Qc5+ Kg8 21.Bf3 Qg6 22.Qd4 c5 23.Qe5 Re8 24.Be2 f3 25.Kf2 fxe2 26.Be3 b6 27.h4 Bd7 28.Qd5 Qxf6+ 29.Kxe2 Bg4+ 30.Kd2 Rd8  0-1'),
-    ('1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6 5.d4 Bg4 6.Qd3 Nc6 7.Bxf7+ Kxf7 8.Qb3+ Kg6 9.Qxb7 Nxd4 10.Qxa8 Nf6 11.Na3 f3 12.g3 Bh3+ 13.Ke1 Qg4 14.Be3 d5 15.Qxa7 Nc6 16.Qxc7 d4 17.Bd2 Qxe4+ 18.Kd1 f2 19.Nxh3 Qf3+ 20.Kc1 Qxh1+  0-1')     
+    ('1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6 5.d4 Bg4 6.Qd3 Nc6 7.Bxf7+ Kxf7 8.Qb3+ Kg6 9.Qxb7 Nxd4 10.Qxa8 Nf6 11.Na3 f3 12.g3 Bh3+ 13.Ke1 Qg4 14.Be3 d5 15.Qxa7 Nc6 16.Qxc7 d4 17.Bd2 Qxe4+ 18.Kd1 f2 19.Nxh3 Qf3+ 20.Kc1 Qxh1+  0-1'),
+    ('1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4 Bxb4 5.c3 Ba5 6.O-O Nf6 7.d4 Nxe4 8.dxe5 Nxc3 9.Nxc3 Bxc3 10.Qb3 Bxa1 11.Bxf7+ Kf8 12.Bg8 Rxg8 13.Ng5 Nxe5 14.f4 d5 15.fxe5+ Ke8 16.Qd3 Rf8 17.Rxf8+ Kxf8 18.Qxh7 Bd4+ 19.Kh1 Qe8 20.Qh8+ Ke7 21.Qxg7+ Kd8 22.Nf7+ Kd7 23.Nd8+ Qe7 24.e6+ Ke8 25.Qg6+ Kf8 26.Bh6+ Bg7 27.Qh7 Bxe6 28.Qh8+ Bg8 29.Bxg7+ Ke8 30.Qxg8+ Kd7 31.Qxd5+ Ke8 32.Ne6  1-0')
+    ('1.e4 e5 2.f4 exf4 3.Nf3 g5 4.Bc4 g4 5.Nc3 gxf3 6.Qxf3 d5 7.Bxd5 c6 8.Bb3 Be6 9.Bxe6 fxe6 10.Qh5+ Kd7 11.d4 Nf6 12.Qh3 Qe7 13.Bxf4 Bg7 14.O-O Na6 15.Rad1 Rae8 16.d5 cxd5 17.exd5 Kc8 18.Kh1 Qd7 19.dxe6 Qxe6 20.Nb5 Nd7 21.Nxa7+ Kd8 22.Bg5+ Kc7 23.Qxe6 Rxe6 24.Rf7 Nb8 25.Rxg7 Kb6 26.h3 Kxa7 27.Rdxd7 Nxd7 28.Rxd7 Re2 29.Bd2 h5 30.g3 Rg8 31.Rd3 Rf8 32.Kg1 b6 33.Be3 Re1+ 34.Kg2 Re2+ 35.Kg1 Re1+  1/2-1/2'),
+    ('1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4 Bc5 5.Ng5 Nh6 6.Nxf7 Nxf7 7.Bxf7+ Kxf7 8.Qh5+ g6 9.Qxc5 d6 10.Qc4+ Be6 11.Qe2 Ne5 12.f4 Bc4 13.Qf2 Nc6 14.c3 dxc3 15.Nxc3 Re8 16.b3 Ba6 17.Bb2 Nb4 18.O-O-O Nd3+ 19.Rxd3 Bxd3 20.Qf3 Ba6 21.f5 Qg5+ 22.Kb1 Kg8 23.h4 Qd8 24.fxg6 hxg6 25.h5 Qg5 26.hxg6 Qxg6 27.Nd5 Qxe4+ 28.Qxe4 Rxe4 29.Nf6+ Kf7 30.Nxe4 Bd3+ 31.Kc1 Bxe4 32.Rg1 Rg8 33.g3  1/2-1/2'),
+    ('1.e4 e6 2.f4 d5 3.e5 c5 4.Nf3 Nc6 5.c3 Qb6 6.Bd3 a6 7.Bc2 Bd7 8.d4 cxd4 9.cxd4 Bb4+ 10.Nc3 Nge7 11.O-O O-O 12.Bxh7+ Kxh7 13.Ng5+ Kg8 14.Qh5 Rfc8 15.Qxf7+ Kh8 16.Qh5+ Kg8 17.Qh7+ Kf8 18.Qh8+ Ng8 19.Nh7+ Kf7 20.Ng5+ Kf8 21.f5 Ke7 22.Qxg7+ Kd8 23.fxe6 Nge7 24.Rf8+ Kc7 25.Nxd5+ Nxd5 26.Qxd7+ Kb8 27.Qxc8+ Ka7 28.Qxa8+  1-0'),
+    ('1.e4 e5 2.f4 exf4 3.Nf3 g5 4.Bc4 g4 5.d4 gxf3 6.Qxf3 Bh6 7.O-O Qf6 8.e5 Qg6 9.Nc3 c6 10.Ne4 d5 11.Nd6+ Kd8 12.Bd3 f5 13.Bxf4 Kc7 14.e6 Bxf4 15.Qxf4 Qxe6 16.Nf7+ Kb6 17.Nxh8 Qf6 18.c4 Qxh8 19.c5+ Ka5 20.Qd2+ Ka4 21.b3+ Ka3 22.Qa5+ Kb2 23.Rfb1+  1-0'),
+    
+    
+    
+    
     ; -- 400 deLaBoudonnais, mais skip certaines parties de plus de 40 moves
 
 INSERT INTO chessboard_table(p_chessboard) VALUES 
@@ -138,13 +147,17 @@ explain SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame,'e4');
 
+explain analyse SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame, getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1));
+
 set session enable_seqscan=false; -- To force the query to use the btree & compare execution time
 
 explain SELECT *
 FROM chessgame_table
 ORDER BY p_chessgame;
 
-explain SELECT count(*)
+SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame,'e4');
 
@@ -154,23 +167,26 @@ WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 -- GETTERS
 
-select ('1. e4 e5' = '1. e4 e5'); -- true
-select ('1. e4 e5' = '1. e4 c5'); -- false
+SELECT count(*) p_chessgame FROM chessgame_table 
+WHERE hasOpening(p_chessgame,getFirstMoves('1. e4 e5',1));
 
-select ('1. e4 e5' != '1. e4 c5'); -- true
-select ('1. e4 e5' != '1. e4 e5'); -- false
 
-select ('1. e4 e5' <= '1. e4 e5'); -- true
-select ('1. e4 e5' <= '1. e4 e5 2. Bc4 Nf6'); -- true
-select ('1. e4 e5' <= '1. e4 c5 2. Bc4 Nf6'); -- false
+-- SELECT count(*)
+-- FROM chessgame_table
+-- WHERE hasBoard(p_chessgame, getBoard('1. e4 e5', 0), 3);
 
-select ('1. e4 e5'<'1. e4 e5 2. Bc4 Nf6'); -- true
-select ('1. e4 e5'<'1. e4 c5 2. Bc4 Nf6'); -- false
 
-select ('1. e4 e5' >= '1. e4 e5'); -- true
-select ('1. e4 e5 2. Bc4 Nf6' >= '1. e4 e5'); -- true
-select ('1. e4 c5 2. Bc4 Nf6' >= '1. e4 e5'); -- false
 
-select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- true
-select ('1. e4 f5 2. Bc4 Nf6' > '1. e4 e5'); -- true
-select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5'); -- false
+SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame,'e4');
+
+explain analyse SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame, '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 ');
+
+set enable_seqscan to TRUE;
+
+explain analyse SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame, '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 ');
