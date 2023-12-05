@@ -12,7 +12,7 @@
 #define SCL_BOARD_STATE_SIZE 69
 
 
-/* fmgr macros chessboard type */ //TODO put them in chess.h
+/* fmgr macros chessboard type */
 
 #define DatumGetChessBoardP(X)  ((ChessBoard *) DatumGetPointer(X))
 #define ChessBoardPGetDatum(X)  PointerGetDatum(X)

@@ -66,43 +66,6 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
   AS 'MODULE_PATHNAME', 'getFirstMoves2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-
-/*
-*
-*/
-
--- CREATE OR REPLACE FUNCTION get_first_moves(chessgame, INT)
--- RETURNS chessgame
--- AS '$libdir/chess', 'get_first_moves'
--- LANGUAGE C IMMUTABLE STRICT;
-
-
-
--- CREATE FUNCTION len(chessgame) -- mourir??
--- RETURNS INT 
--- -- AS 'SELECT array_length(string_to_array($1, '' ''), 1)' -- on aurait pu flex mais à mon avis ça fonctionne pas
--- AS '$libdir/chess', 'len'
--- LANGUAGE C IMMUTABLE STRICT;
-
--- CREATE FUNCTION has_opening(game1 chessgame, game2 chessgame)
--- RETURNS BOOLEAN
--- AS 'SELECT get_first_moves(game1, 1) = get_first_moves(game2, 1)'
--- LANGUAGE SQL IMMUTABLE STRICT;
-
--- CREATE OR REPLACE FUNCTION has_opening(game1 chessgame, game2 chessgame)
--- RETURNS BOOLEAN
--- AS 'SELECT get_first_moves(game1, len(game2)) = game2'
--- LANGUAGE SQL IMMUTABLE STRICT;
-
--- CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
--- RETURNS BOOLEAN
--- AS 'SELECT getBoard(game, value) = board'
--- LANGUAGE SQL IMMUTABLE STRICT;
--- CREATE OR REPLACE FUNCTION hasBoard(game chessgame, board chessboard, value int4)
--- RETURNS BOOLEAN
--- AS 'SELECT getBoard(game, value) = board'
--- LANGUAGE SQL IMMUTABLE STRICT;
-
 /******************************************************************************
  * Other functions to implement --- TODO add cstring for hasOpening
  ******************************************************************************/
@@ -112,16 +75,10 @@ CREATE FUNCTION hasOpening(chessgame, chessgame)
   AS 'MODULE_PATHNAME', 'hasOpening2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-
-
-
 CREATE FUNCTION hasBoard(chessgame, chessboard, int)
   RETURNS boolean
   AS 'MODULE_PATHNAME', 'hasBoard2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
-
-
-
 
 /******************************************************************************
  * Operators & functions associated to it
@@ -288,15 +245,23 @@ AS
 -- AS 'MODULE_PATHNAME', 'chessboard_cmp'
 -- LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OPERATOR CLASS gin_chessgboard_ops
--- DEFAULT FOR TYPE chessgame USING gin
--- AS
---     OPERATOR 1 &&, -- overlapping elements
---     OPERATOR 2 @>, -- contains
---     OPERATOR 3 <@, -- is contained by
---     OPERATOR 4 =, -- equals
---     FUNCTION 1 chessboard_cmp(chessgame, chessboard) -- support function to compare this shit
---     FUNCTION 2 extractValue
+-- CREATE OR REPLACE FUNCTION chessgame_extractValue(chessgame)
+-- RETURNS chessboard
+-- AS 'MODULE_PATHNAME', 'chessgame_extractValue'
+-- LANGUAGE C IMMUTABLE STRICT;
 
+-- CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard)
+-- RETURNS chessgame
+-- AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
+-- LANGUAGE C IMMUTABLE STRICT;
 
-
+CREATE OPERATOR CLASS gin_chessgboard_ops
+DEFAULT FOR TYPE chessgame USING gin
+AS
+    OPERATOR 1 &&, -- overlapping elements
+    OPERATOR 2 @>, -- contains
+    OPERATOR 3 <@, -- is contained by
+    OPERATOR 4 =, -- equals
+    FUNCTION 1 chessboard_cmp(chessgame, chessboard), -- support function to compare this shit
+    FUNCTION 2 chessgame_extractValue(chessgame),
+    FUNCTION 3 chessboard_extractQuery(chessboard)

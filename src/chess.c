@@ -132,7 +132,7 @@ Datum chessboard_in(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_out);
 Datum chessboard_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
-  ChessBoard *c = PG_GETARG_ChessBoard_P(0); // Pointer to the SQL datatype & cast it in struct C
+  ChessBoard *c = chessboard_make(PG_GETARG_ChessBoard_P(0)); // Pointer to the SQL datatype & cast it in struct C
   char *fen = chessboard_to_str(c); // To only have the FEN 
   //PG_FREE_IF_COPY(c, 0);
   PG_RETURN_CSTRING(fen);
@@ -152,55 +152,11 @@ Datum chessgame_in(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessgame_out);
 Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
-  ChessGame *c = PG_GETARG_ChessGame_P(0); // Pointer to the SQL datatype & cast it in struct C
+  ChessGame *c = chessgame_make(PG_GETARG_ChessGame_P(0)); // Pointer to the SQL datatype & cast it in struct C
   char *pgn = chessgame_to_str(c); // To only have the PGN 
   //PG_FREE_IF_COPY(c, 0);
   PG_RETURN_CSTRING(pgn);
 }
-
-
-
-/************************************CAST*************************************/
-/*
-PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
-Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
-{
-  text *txt = PG_GETARG_TEXT_P(0);
-  char *fen = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
-  PG_RETURN_ChessBoard_P(chessboard_parse(fen));
-}
-
-
-PG_FUNCTION_INFO_V1(chessboard_cast_to_text);
-Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
-{
-  ChessBoard *c  = PG_GETARG_ChessBoard_P(0);
-  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessboard_to_str(c)));
-  PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_TEXT_P(out);
-}
-
-
-
-PG_FUNCTION_INFO_V1(chessgame_cast_from_text);
-Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
-{
-  text *txt = PG_GETARG_TEXT_P(0);
-  char *pgn = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
-  PG_RETURN_ChessGame_P(chessgame_parse(pgn));
-}
-
-
-PG_FUNCTION_INFO_V1(chessgame_cast_to_text);
-Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
-{
-  ChessGame *c  = PG_GETARG_ChessGame_P(0);
-  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessgame_to_str(c)));
-  PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_TEXT_P(out);
-}
-*/
-
 
 /*****************************************************************************
  * Functions to implement
@@ -363,34 +319,6 @@ Datum getBoard2(PG_FUNCTION_ARGS)
   PG_RETURN_ChessBoard_P(result);
 }
 
-
-/*****************************************************************************
- * ICI ON FAIT DE LA CHIMIE
-*****************************************************************************/
-
-// PG_FUNCTION_INFO_V1(len);
-// Datum len(PG_FUNCTION_ARGS)
-// {
-//   char *str = PG_GETARG_P(0);
-//   int result = SCL_recordLength(game->record);
-//   PG_RETURN_INT(result);
-// }
-
-// PG_FUNCTION_INFO_V1(chessboard_overlap);
-// Datum chessboard_overlap(PG_FUNCTION_ARGS)
-// {
-
-//   ChessGame *a = PG_GETARG_P(0);
-//   ChessBoard *b = PG_GETARG_P(1);
-
-//   int length = SCL_recordLength(a->record);
-
-//   for(int i=0, < length, i++){
-
-//   }
-  
-// }
-
 /*****************************************************************************
  * Operators for chessgame
  *****************************************************************************/
@@ -467,3 +395,109 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
 
 
 // }
+
+/**
+ * @param chessgame: the game to analyze
+ * @return boards: an array of chessboards
+ * Recieves a chessgame and returns an array of the boards of the game in FEN format
+*/
+PG_FUNCTION_INFO_V1(chessgame_extractValue);
+Datum chessgame_extractValue(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+
+  int len = SCL_recordLength(a->record);
+  if(len == 0){
+  elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+  }
+
+  if(a == NULL){
+  elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+  }
+
+  char **boards = palloc0(sizeof(char*)*len+1);
+  boards[0] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
+  strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+
+  SCL_Board *temp = malloc(sizeof(SCL_Board));
+
+  for(int i = 0; i < len; i++){
+
+    SCL_recordApply(a->record, *temp, i+1);
+    boards[i+1] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    char tmp[SCL_FEN_MAX_LENGTH];
+    SCL_boardToFEN(temp, tmp);
+    char* tmp2 = strtok(tmp, " ");
+    strcpy(boards[i+1], tmp2);
+    }
+
+    if(boards == NULL){
+    elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');
+
+  }
+
+  PG_RETURN_POINTER(boards);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_extractQuery);
+Datum chessgame_extractQuery(PG_FUNCTION_ARGS)
+{
+  Chessboard *a = chessboard_make(PG_GETARG_Chessboard_P(0));
+  char *target = strtok(a->fen, " ");
+  PG_RETURN_POINTER(target);
+}
+
+PG_FUNCTION_INFO_V1(chessgame_cmp);
+Datum chessboard_cmp(PG_FUNCTION_ARGS)
+{
+  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+
+
+
+}
+
+
+
+/***************** CA FAUDRA REVOIR :) *************************************/
+/*
+PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
+Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
+{
+  text *txt = PG_GETARG_TEXT_P(0);
+  char *fen = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
+  PG_RETURN_ChessBoard_P(chessboard_parse(fen));
+}
+
+
+PG_FUNCTION_INFO_V1(chessboard_cast_to_text);
+Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
+{
+  ChessBoard *c  = PG_GETARG_ChessBoard_P(0);
+  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessboard_to_str(c)));
+  PG_FREE_IF_COPY(c, 0);
+  PG_RETURN_TEXT_P(out);
+}
+
+
+
+PG_FUNCTION_INFO_V1(chessgame_cast_from_text);
+Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
+{
+  text *txt = PG_GETARG_TEXT_P(0);
+  char *pgn = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
+  PG_RETURN_ChessGame_P(chessgame_parse(pgn));
+}
+
+
+PG_FUNCTION_INFO_V1(chessgame_cast_to_text);
+Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
+{
+  ChessGame *c  = PG_GETARG_ChessGame_P(0);
+  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessgame_to_str(c)));
+  PG_FREE_IF_COPY(c, 0);
+  PG_RETURN_TEXT_P(out);
+}
+*/
+

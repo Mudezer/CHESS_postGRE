@@ -233,11 +233,67 @@ void test_getBoard() {
 }
 
 
+
+static void chessgame_extractValue(ChessGame *a){
+//   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+
+    int len = SCL_recordLength(a->record);
+    if(len == 0){
+    // elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+    printf("Error: the length is empty -> chessgame_extractValue");
+    }
+
+    if(a == NULL){
+    // elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+    printf("Error: the game is empty -> chessgame_extractValue");
+    }
+
+    char **boards = malloc(sizeof(char*)*len+1);
+    boards[0] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+
+    SCL_Board *temp = malloc(sizeof(SCL_Board));
+    printf("starting turbo tebug\n");
+    for(int i = 0; i < len; i++){
+
+        SCL_recordApply(a->record, *temp, i+1);
+        boards[i+1] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+        char tmp[SCL_FEN_MAX_LENGTH];
+        SCL_boardToFEN(temp, tmp);
+        char* tmp2 = strtok(tmp, " ");
+        strcpy(boards[i+1], tmp2);
+        }
+
+        if(boards == NULL){
+        // elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');
+        printf("Error: the boards are empty -> chessgame_extractValue");
+    }
+
+    free(boards);
+    free(temp);
+    free(a);
+}
+
+static void chessgame_extractQuery(ChessBoard *a){
+
+// ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+    
+    char *target = strtok(a->fen, " ");
+    printf("debug wololo\n");
+    printf("target: %s\n", target);
+
+    free(a);
+}
+
 int main ()
 {
     test_getFirstMoves();
     //test_hasOpening();
     //test_getBoard();
     test_hasBoard();
+
+    // chessgame_extractValue(chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3"));
+    chessgame_extractQuery(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"));
     return 0;
 }
