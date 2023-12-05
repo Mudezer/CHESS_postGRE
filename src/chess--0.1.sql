@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION chessgame_out(chessgame)
 
 
 CREATE TYPE chessboard (
-  internallength =   -1, -- variable length :^)
+  internallength =   100, -- variable length :^)
   input          =   chessboard_in,
   output         =   chessboard_out
 );
@@ -37,7 +37,7 @@ COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  internallength = -1, -- variable length
+  internallength = 256, -- variable length
   input          = chessgame_in,
   output         = chessgame_out
 );
@@ -238,10 +238,10 @@ AS
  * GIN support function
  ******************************************************************************/
 
-CREATE OR REPLACE FUNCTION chessboard_overlap(chessboard, chessboard)
-RETURNS BOOLEAN
-AS 'MODULE_PATHNAME', 'chessboard_overlap'
-LANGUAGE C IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION chessboard_overlap(chessboard, chessboard)
+-- RETURNS BOOLEAN
+-- AS 'MODULE_PATHNAME', 'chessboard_overlap'
+-- LANGUAGE C IMMUTABLE STRICT;
 
 -- CREATE OR REPLACE FUNCTION chessboard_contains(chessgame, chessboard)
 -- RETURNS BOOLEAN
@@ -258,12 +258,12 @@ LANGUAGE C IMMUTABLE STRICT;
 -- AS 'MODULE_PATHNAME', 'chessboard_eq'
 -- LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OPERATOR (
-  LEFTARG = chessboard,
-  RIGHTARG = chessboard,
-  PROCEDURE = chessboard_overlap,
-  COMMUTATOR = @@
-);
+-- CREATE OPERATOR (
+--   LEFTARG = chessboard,
+--   RIGHTARG = chessboard,
+--   PROCEDURE = chessboard_overlap,
+--   COMMUTATOR = @@
+-- );
 
 -- CREATE OPERATOR @>(
 --   LEFTARG = chessgame,
