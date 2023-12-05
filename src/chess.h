@@ -37,11 +37,11 @@
  *****************************************************************************/
 
 // Structure to represent the chess game
+
 typedef struct
 {
     char            pgn[MAX_PGN_LENGTH];
     SCL_Record      record;
-    ChessBoard*     board[beacouptrop];
 
 } ChessGame;
 
