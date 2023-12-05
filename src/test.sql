@@ -51,6 +51,7 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4 Bc5 5.Ng5 Nh6 6.Nxf7 Nxf7 7.Bxf7+ Kxf7 8.Qh5+ g6 9.Qxc5 d6 10.Qc4+ Be6 11.Qe2 Ne5 12.f4 Bc4 13.Qf2 Nc6 14.c3 dxc3 15.Nxc3 Re8 16.b3 Ba6 17.Bb2 Nb4 18.O-O-O Nd3+ 19.Rxd3 Bxd3 20.Qf3 Ba6 21.f5 Qg5+ 22.Kb1 Kg8 23.h4 Qd8 24.fxg6 hxg6 25.h5 Qg5 26.hxg6 Qxg6 27.Nd5 Qxe4+ 28.Qxe4 Rxe4 29.Nf6+ Kf7 30.Nxe4 Bd3+ 31.Kc1 Bxe4 32.Rg1 Rg8 33.g3  1/2-1/2'),
     ('1.e4 e6 2.f4 d5 3.e5 c5 4.Nf3 Nc6 5.c3 Qb6 6.Bd3 a6 7.Bc2 Bd7 8.d4 cxd4 9.cxd4 Bb4+ 10.Nc3 Nge7 11.O-O O-O 12.Bxh7+ Kxh7 13.Ng5+ Kg8 14.Qh5 Rfc8 15.Qxf7+ Kh8 16.Qh5+ Kg8 17.Qh7+ Kf8 18.Qh8+ Ng8 19.Nh7+ Kf7 20.Ng5+ Kf8 21.f5 Ke7 22.Qxg7+ Kd8 23.fxe6 Nge7 24.Rf8+ Kc7 25.Nxd5+ Nxd5 26.Qxd7+ Kb8 27.Qxc8+ Ka7 28.Qxa8+  1-0'),
     ('1.e4 e5 2.f4 exf4 3.Nf3 g5 4.Bc4 g4 5.d4 gxf3 6.Qxf3 Bh6 7.O-O Qf6 8.e5 Qg6 9.Nc3 c6 10.Ne4 d5 11.Nd6+ Kd8 12.Bd3 f5 13.Bxf4 Kc7 14.e6 Bxf4 15.Qxf4 Qxe6 16.Nf7+ Kb6 17.Nxh8 Qf6 18.c4 Qxh8 19.c5+ Ka5 20.Qd2+ Ka4 21.b3+ Ka3 22.Qa5+ Kb2 23.Rfb1+  1-0'),
+    -- generate 30 san
     
     
     
@@ -185,8 +186,17 @@ explain analyse SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame, '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 ');
 
-set enable_seqscan to TRUE;
+explain analyse SELECT count(*)
+FROM chessgame_table
+WHERE has_opening(p_chessgame, '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 ');
 
 explain analyse SELECT count(*)
 FROM chessgame_table
-WHERE hasOpening(p_chessgame, '1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 ');
+WHERE hasOpening(p_chessgame, getFirstMoves('1. e4 e5',2) );
+
+explain analyse SELECT count(*)
+FROM chessgame_table
+WHERE has_opening(p_chessgame, getFirstMoves('1. e4 e5',2) );
+--'1. e4 d5 2. exd5 Qxd5 3. Nc3 Qd8 4. Bc4 Nf6 '
+set enable_seqscan to TRUE;
+

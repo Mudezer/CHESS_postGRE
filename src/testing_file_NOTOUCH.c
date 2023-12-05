@@ -232,11 +232,8 @@ void test_getBoard() {
         printf("Test getBoard failed\n");
 }
 
-
-
-static void chessgame_extractValue(ChessGame *a){
-//   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
-
+static char ** chessgame_generate_boards(ChessGame *a)
+{
     int len = SCL_recordLength(a->record);
     if(len == 0){
     // elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
@@ -270,8 +267,17 @@ static void chessgame_extractValue(ChessGame *a){
         printf("Error: the boards are empty -> chessgame_extractValue");
     }
 
-    free(boards);
     free(temp);
+
+    return boards;
+}
+
+static void chessgame_extractValue(ChessGame *a){
+//   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+
+    char **boards = chessgame_generate_boards(a);
+    printf("all board generated yaya\n");
+    free(boards);
     free(a);
 }
 
@@ -286,6 +292,34 @@ static void chessgame_extractQuery(ChessBoard *a){
     free(a);
 }
 
+
+// TODO: finir la fonction, la tester et la mettre dans le fichier chess.c
+// Datum chessboard_overlap(PG_FUNCTION_ARGS)
+static void chessboard_overlap(ChessGame *a, ChessBoard *b)
+{
+
+//   ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+//   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+    
+    // char *target = strtok(a->fen, " ");
+    // char **boards = chessgame_extractValue(a);
+    char *query = strtok(b->fen, " ");
+    
+    for(int i = 0; i<strlen(target); i++){
+        // printf("debug overlap\n");
+        for(int j = 0; j<strlen(query); j++){
+            if(target[i] == query[j]){
+            printf("true");
+            // PG_RETURN_BOOL(true);
+            }
+        }
+    }
+    //   PG_RETURN_BOOL(false);
+    printf("false");
+
+}
+
+
 int main ()
 {
     test_getFirstMoves();
@@ -293,7 +327,9 @@ int main ()
     //test_getBoard();
     test_hasBoard();
 
-    // chessgame_extractValue(chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3"));
-    chessgame_extractQuery(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"));
+    chessgame_extractValue(chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3"));
+    // chessgame_extractQuery(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"));
+
+    // chessboard_overlap(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"), chessboard_make("3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 25"));
     return 0;
 }
