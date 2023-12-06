@@ -37,7 +37,7 @@ COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  internallength = 256,
+  internallength = 256, -- peut etre 512
   input          = chessgame_in,
   output         = chessgame_out
 );
@@ -196,67 +196,72 @@ RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contains'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_contained(chessgame, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessgame)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contained'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_eq(chessgame, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_eq(chessboard, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_eq'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OPERATOR (
-  LEFTARG = chessboard,
+CREATE OPERATOR &&(
+  LEFTARG = chessgame,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_overlap,
-  COMMUTATOR = @@
+  COMMUTATOR = &&
 );
 
 CREATE OPERATOR @>(
   LEFTARG = chessgame,
   RIGHTARG = chessboard,
-  PROCEDURE = chessboard_contains
+  PROCEDURE = chessboard_contains,
+  COMMUTATOR = @>
 );
 
 CREATE OPERATOR <@(
   LEFTARG = chessboard,
   RIGHTARG = chessgame,
-  PROCEDURE = chessboard_contained
+  PROCEDURE = chessboard_contained,
+  COMMUTATOR = <@
 );
 
 CREATE OPERATOR =(
-  LEFTARG = chessgame,
+  LEFTARG = chessboard,
   RIGHTARG = chessboard,
-  PROCEDURE = chessboard_eq
+  PROCEDURE = chessboard_eq,
+  COMMUTATOR = =
 );
 
 /******************************************************************************
  * GIN Support Functions
  ******************************************************************************/
 
-CREATE OR REPLACE FUNCTION chessboard_cmp(chessgame, chessboard)
-RETURNS BOOLEAN
-AS 'MODULE_PATHNAME', 'chessboard_cmp'
-LANGUAGE C IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION chessboard_cmp(chessboard, chessboard)
+-- RETURNS INTEGER
+-- AS 'MODULE_PATHNAME', 'chessboard_cmp'
+-- LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessgame_extractValue(chessgame)
-RETURNS chessboard
-AS 'MODULE_PATHNAME', 'chessgame_extractValue'
-LANGUAGE C IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame)
+-- RETURNS internal
+-- AS 'MODULE_PATHNAME', 'chessboard_extractValue'
+-- LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard)
-RETURNS chessgame
-AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
-LANGUAGE C IMMUTABLE STRICT;
+-- CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard)
+-- RETURNS internal
+-- AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
+-- LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OPERATOR CLASS gin_chessgboard_ops
+CREATE OPERATOR CLASS gin_chessboard_ops
 DEFAULT FOR TYPE chessgame USING gin
 AS
-    OPERATOR 1 &&, -- overlapping elements
-    OPERATOR 2 @>, -- contains
-    OPERATOR 3 <@, -- is contained by
-    OPERATOR 4 =, -- equals
-    FUNCTION 1 chessboard_cmp(chessgame, chessboard), -- support function to compare this shit
-    FUNCTION 2 chessgame_extractValue(chessgame),
-    FUNCTION 3 chessboard_extractQuery(chessboard)
+    OPERATOR 1 && (chessgame, chessboard), -- overlapping elements
+    OPERATOR 2 @> (chessgame, chessboard), -- contains
+    OPERATOR 3 <@ (chessboard, chessgame), -- is contained by
+    OPERATOR 4 = (chessboard, chessboard); -- equals
+    -- FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function to compare this shit TODO
+    -- FUNCTION 2 chessboard_extractValue(chessgame);
+    -- FUNCTION 3 chessboard_extractQuery(chessboard);
+
+

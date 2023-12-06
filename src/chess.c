@@ -14,6 +14,7 @@
 
 #include "utils/builtins.h"
 #include "libpq/pqformat.h"
+// #include "utils/elog.h" // see if needed
 
 #include "chess.h"
 
@@ -25,7 +26,7 @@ PG_MODULE_MAGIC;
 
 static ChessGame * chessgame_make(const char * pgn)
 {
-    ChessGame *c = palloc(sizeof(ChessGame));
+    ChessGame *c = palloc0(sizeof(ChessGame));
     strcpy(c->pgn, pgn);
     SCL_recordFromPGN(c->record, pgn);
     return c;
@@ -33,7 +34,7 @@ static ChessGame * chessgame_make(const char * pgn)
 
 static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 {
-    ChessBoard *c = palloc(sizeof(ChessBoard)); 
+    ChessBoard *c = palloc0(sizeof(ChessBoard)); 
     SCL_boardFromFEN(c->board, fen);
     strcpy(c->fen, fen);
     return c;
@@ -158,7 +159,7 @@ static ChessGame * getFirstMoves(ChessGame * chessgame, int n) //TODO: case no s
 {
     char * gamePGN = chessgame->pgn;
     char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
-    char *openingPGN = palloc(sizeof(char)*MAX_PGN_LENGTH);
+    char *openingPGN = palloc0(sizeof(char)*MAX_PGN_LENGTH);
     int counter = 0;
     int incr = 0;
     char* tok = strtok(gamePGN_copy, " ");
@@ -231,7 +232,7 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
     bool isSame = false;
 
     // Board to find
-    SCL_Board *board_tofind = palloc(sizeof(SCL_Board));
+    SCL_Board *board_tofind = palloc0(sizeof(SCL_Board));
     SCL_boardFromFEN(*board_tofind, board_FEN);
     char board_tofindStr[65]; // Increase the size by 1 to accommodate the null terminator
     strncpy(board_tofindStr, *board_tofind, 64);
@@ -239,11 +240,11 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
 
     // Boards of the game
     char* firstMoves = getFirstMoves(gamePGN, moveNumber);
-    SCL_Record *record = palloc(sizeof(SCL_Record));
+    SCL_Record *record = palloc0(sizeof(SCL_Record));
     SCL_recordFromPGN(*record, firstMoves);
-    SCL_Board *board = palloc(sizeof(SCL_Board));
+    SCL_Board *board = palloc0(sizeof(SCL_Board));
     char boardStr[65];
-    while((counter < moveNumber) && (isSame == false))
+    while((counter <= moveNumber) && (isSame == false))
     {
         SCL_recordApply(*record, *board, counter);
         strncpy(boardStr, *board, 64);
@@ -282,11 +283,11 @@ Datum hasBoard2(PG_FUNCTION_ARGS)
 static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 {
     char * gamePGN = chessgame->pgn;
-    char* boardFEN = palloc(sizeof(char)*MAX_FEN_LENGTH);
+    char* boardFEN = palloc0(sizeof(char)*MAX_FEN_LENGTH);
 
-    SCL_Record *record = palloc(SCL_RECORD_MAX_SIZE);
+    SCL_Record *record = palloc0(SCL_RECORD_MAX_SIZE);
     SCL_recordFromPGN(*record, gamePGN);
-    SCL_Board *board = palloc(SCL_RECORD_MAX_SIZE);
+    SCL_Board *board = palloc0(SCL_RECORD_MAX_SIZE);
     SCL_recordApply(*record, *board, moveNumber);
     SCL_boardToFEN(*board, boardFEN);
 
@@ -315,16 +316,16 @@ static char ** chessgame_generate_boards(ChessGame *a)
 
   int len = SCL_recordLength(a->record);
 
-  char **boards = malloc(sizeof(char*)*len+1);
-  boards[0] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+  char **boards = palloc0(sizeof(char*)*len+1);
+  boards[0] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
   strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
-  SCL_Board *temp = malloc(sizeof(SCL_Board));
+  SCL_Board *temp = palloc0(sizeof(SCL_Board));
 
   for(int i = 0; i < len; i++){
 
     SCL_recordApply(a->record, *temp, i+1);
-    boards[i+1] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    boards[i+1] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
     char tmp[SCL_FEN_MAX_LENGTH];
     SCL_boardToFEN(temp, tmp);
     char* tmp2 = strtok(tmp, " ");
@@ -405,34 +406,82 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_overlap);
 Datum chessboard_overlap(PG_FUNCTION_ARGS)
 {
-
-  // ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  char **boards = chessgame_generate_boards(a);
 
   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
-    
-    char *target = strtok(a->fen, " ");
-    char *query = strtok(b->fen, " ");
-    
-    for(int i = 0; i<strlen(target); i++){
-        for(int j = 0; j<strlen(query); j++){
-            if(target[i] == query[j]){
 
+  char *query = strtok(b->fen, " ");
+    
+  for(int i = 0; i<(SCL_recordLength(a->record)+1);i++){
+
+    char *target = strtok(boards[i]," ");
+      for(int j = 0; j<strlen(target); j++){
+        for(int k = 0; k<strlen(query); k++){
+          if(target[j] == query[k]){
             PG_RETURN_BOOL(true);
-            }
+          }
         }
-    }
-      PG_RETURN_BOOL(false);
+      }
+  }
+
+
+PG_RETURN_BOOL(false);
+
 
 }
 
 
 PG_FUNCTION_INFO_V1(chessboard_contains);
-Datum chessboard_contains(PG_FUNCTION_ARGS)
+Datum chessboard_contains(PG_FUNCTION_ARGS) //left arg contains right arg
+{
+  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+    
+  char **boards = chessgame_generate_boards(a);
+
+  for(int i = 0; i<(SCL_recordLength(a->record)+1);i++){
+    char *target = strtok(boards[i]," ");
+    char *query = strtok(b->fen, " ");
+    if(strcmp(target, query) == 0){
+      PG_RETURN_BOOL(true);
+    }
+  }
+  PG_RETURN_BOOL(false);
+}
+
+PG_FUNCTION_INFO_V1(chessboard_contained);
+Datum chessboard_contained(PG_FUNCTION_ARGS) //left arg contained in right arg
+{
+  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+  ChessGame *b = chessgame_make(PG_GETARG_ChessGame_P(1));
+
+  char **boards = chessgame_generate_boards(b);
+
+  for(int i = 0; i<(SCL_recordLength(b->record)+1);i++){
+    char *target = strtok(boards[i]," ");
+    char *query = strtok(a->fen, " ");
+    if(strcmp(target, query) == 0){
+      PG_RETURN_BOOL(true);
+    }
+  }
+
+  PG_RETURN_BOOL(false);
+}
+
+PG_FUNCTION_INFO_V1(chessboard_eq);
+Datum chessboard_eq(PG_FUNCTION_ARGS)
 {
   ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
-    
+
+  char *target = strtok(a->fen, " ");
+  char *query = strtok(b->fen, " ");
+
+  PG_RETURN_BOOL(strcmp(target, query) == 0);
 }
+
+
 
 
 /*****************************************************************************
@@ -446,85 +495,52 @@ Datum chessboard_contains(PG_FUNCTION_ARGS)
  * Recieves a chessgame and returns an array of the boards of the game in FEN format
 */
 
-PG_FUNCTION_INFO_V1(chessgame_extractValue);
-Datum chessgame_extractValue(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(chessboard_extractValue);
+Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 {
   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
 
   int len = SCL_recordLength(a->record);
-  if(len == 0){
-  elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
-  }
+  // if(len == 0){elog(LOG, 'Error: the game is empty -> chessgame_extractValue');}
 
-  if(a == NULL){
-  elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
-  }
+  // if(a == NULL){ elog(LOG, 'Error: the game is empty -> chessgame_extractValue');}
 
   char **boards = chessgame_generate_boards(a);
-  
-  if(boards == NULL){
-    elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');
+  char **result = palloc0(sizeof(char*)*len+1);
+  for(int i=0; i<len+1;i++){
+    result[i] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    strcpy(result[i], boards[i]);
   }
+  
+  // if(boards == NULL){elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');}
 
-  PG_RETURN_POINTER(boards);
+  PG_RETURN_POINTER(*result);
 }
 
-PG_FUNCTION_INFO_V1(chessgame_extractQuery);
-Datum chessgame_extractQuery(PG_FUNCTION_ARGS)
+PG_FUNCTION_INFO_V1(chessboard_extractQuery);
+Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
 {
-  Chessboard *a = chessboard_make(PG_GETARG_Chessboard_P(0));
+  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
   char *target = strtok(a->fen, " ");
   PG_RETURN_POINTER(target);
 }
 
-PG_FUNCTION_INFO_V1(chessgame_cmp);
+PG_FUNCTION_INFO_V1(chessboard_cmp);
 Datum chessboard_cmp(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
 
-  char **boards 
+  char *target = strtok(a->fen, " ");
+  char *query = strtok(b->fen, " ");
+  if(strcmp(target, query) == 0){
+    PG_RETURN_INT32(0);
+  }
+  else if(strcmp(target, query) > 0){
+    PG_RETURN_INT32(1);
+  }
+  else{
+    PG_RETURN_INT32(-1);
+  }
 
 }
-
-/***************** CA FAUDRA REVOIR :) *************************************/
-/*
-PG_FUNCTION_INFO_V1(chessboard_cast_from_text);
-Datum chessboard_cast_from_text(PG_FUNCTION_ARGS)
-{
-  text *txt = PG_GETARG_TEXT_P(0);
-  char *fen = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
-  PG_RETURN_ChessBoard_P(chessboard_parse(fen));
-}
-
-
-PG_FUNCTION_INFO_V1(chessboard_cast_to_text);
-Datum chessboard_cast_to_text(PG_FUNCTION_ARGS)
-{
-  ChessBoard *c  = PG_GETARG_ChessBoard_P(0);
-  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessboard_to_str(c)));
-  PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_TEXT_P(out);
-}
-
-
-
-PG_FUNCTION_INFO_V1(chessgame_cast_from_text);
-Datum chessgame_cast_from_text(PG_FUNCTION_ARGS)
-{
-  text *txt = PG_GETARG_TEXT_P(0);
-  char *pgn = DatumGetCString(DirectFunctionCall1(textout, PointerGetDatum(txt)));
-  PG_RETURN_ChessGame_P(chessgame_parse(pgn));
-}
-
-
-PG_FUNCTION_INFO_V1(chessgame_cast_to_text);
-Datum chessgame_cast_to_text(PG_FUNCTION_ARGS)
-{
-  ChessGame *c  = PG_GETARG_ChessGame_P(0);
-  text *out = (text *)DirectFunctionCall1(textin, PointerGetDatum(chessgame_to_str(c)));
-  PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_TEXT_P(out);
-}
-*/
-
