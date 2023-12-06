@@ -19,8 +19,6 @@
 
 PG_MODULE_MAGIC;
 
-/*****************************************************************************/
-
 /*****************************************************************************
  * Make
  *****************************************************************************/
@@ -33,7 +31,6 @@ static ChessGame * chessgame_make(const char * pgn)
     return c;
 }
 
-
 static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 {
     ChessBoard *c = palloc(sizeof(ChessBoard)); 
@@ -41,8 +38,6 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
     strcpy(c->fen, fen);
     return c;
 }
-
-
 
 /*****************************************************************************
  * Parser & verification of errors TODO
@@ -96,7 +91,6 @@ static char * chessboard_to_str(const ChessBoard *c)
   return c->fen;
 }
 
-
 /**
  * Getter of the PGN format of a ChessGame
  * @param fen : the ChessGame struct
@@ -106,9 +100,6 @@ static char * chessgame_to_str(const ChessGame *c)
 {
   return c->pgn;
 }
-
-
-
 
 /*****************************************************************************
  * C-SQL Linking Functions
@@ -128,7 +119,6 @@ Datum chessboard_in(PG_FUNCTION_ARGS)
   // à noter que le coté SQL s'en fout du type de pointeur qu'on renvoie du moment qu'on lui indique que c'est un pointeur
 }
 
-
 PG_FUNCTION_INFO_V1(chessboard_out);
 Datum chessboard_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
@@ -138,8 +128,6 @@ Datum chessboard_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
   PG_RETURN_CSTRING(fen);
 }
 
-
-
 PG_FUNCTION_INFO_V1(chessgame_in); // Declare the function
 Datum chessgame_in(PG_FUNCTION_ARGS)
 {
@@ -147,7 +135,6 @@ Datum chessgame_in(PG_FUNCTION_ARGS)
   PG_RETURN_ChessGame_P(chessgame_parse(pgn)); // Send the pointer to the C struct
   // à noter que le coté SQL s'en fout du type de pointeur qu'on renvoie du moment qu'on lui indique que c'est un pointeur
 }
-
 
 PG_FUNCTION_INFO_V1(chessgame_out);
 Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
@@ -319,6 +306,37 @@ Datum getBoard2(PG_FUNCTION_ARGS)
   PG_RETURN_ChessBoard_P(result);
 }
 
+/**
+ * @param chessgame the game to analyze
+ * @returns boards an array of the boards of the game in FEN truncated format
+*/
+static char ** chessgame_generate_boards(ChessGame *a)
+{
+
+  int len = SCL_recordLength(a->record);
+
+  char **boards = malloc(sizeof(char*)*len+1);
+  boards[0] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+  strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+  SCL_Board *temp = malloc(sizeof(SCL_Board));
+
+  for(int i = 0; i < len; i++){
+
+    SCL_recordApply(a->record, *temp, i+1);
+    boards[i+1] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    char tmp[SCL_FEN_MAX_LENGTH];
+    SCL_boardToFEN(temp, tmp);
+    char* tmp2 = strtok(tmp, " ");
+    strcpy(boards[i+1], tmp2);
+  } 
+
+  free(temp);
+
+  return boards;
+}
+
+
 /*****************************************************************************
  * Operators for chessgame
  *****************************************************************************/
@@ -381,26 +399,53 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
 
 
 /*****************************************************************************
- * OPERATOR FOR GIN INDEX
+ * GIN INDEX OPERATORS
 *****************************************************************************/
 
-// PG_FUNCTION_INFO_V1()
+PG_FUNCTION_INFO_V1(chessboard_overlap);
+Datum chessboard_overlap(PG_FUNCTION_ARGS)
+{
 
-// PG_FUNCTION_INFO_V1(chessboard_eq);
-// Datum chessboard_eq(PG_FUNCTION_ARGS)
-// {
-//   ChessGame *a = PG_GETARG_P(0);
-//   ChessGame *b = PG_GETARG_P(1);
+  // ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+
+  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+    
+    char *target = strtok(a->fen, " ");
+    char *query = strtok(b->fen, " ");
+    
+    for(int i = 0; i<strlen(target); i++){
+        for(int j = 0; j<strlen(query); j++){
+            if(target[i] == query[j]){
+
+            PG_RETURN_BOOL(true);
+            }
+        }
+    }
+      PG_RETURN_BOOL(false);
+
+}
 
 
+PG_FUNCTION_INFO_V1(chessboard_contains);
+Datum chessboard_contains(PG_FUNCTION_ARGS)
+{
+  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+    
+}
 
-// }
+
+/*****************************************************************************
+ * GIN INDEX SUPPORT FUNCTIONS
+*****************************************************************************/
+
 
 /**
  * @param chessgame: the game to analyze
  * @return boards: an array of chessboards
  * Recieves a chessgame and returns an array of the boards of the game in FEN format
 */
+
 PG_FUNCTION_INFO_V1(chessgame_extractValue);
 Datum chessgame_extractValue(PG_FUNCTION_ARGS)
 {
@@ -415,26 +460,10 @@ Datum chessgame_extractValue(PG_FUNCTION_ARGS)
   elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
   }
 
-  char **boards = palloc0(sizeof(char*)*len+1);
-  boards[0] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
-  strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
-
-  SCL_Board *temp = malloc(sizeof(SCL_Board));
-
-  for(int i = 0; i < len; i++){
-
-    SCL_recordApply(a->record, *temp, i+1);
-    boards[i+1] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
-    char tmp[SCL_FEN_MAX_LENGTH];
-    SCL_boardToFEN(temp, tmp);
-    char* tmp2 = strtok(tmp, " ");
-    strcpy(boards[i+1], tmp2);
-    }
-
-    if(boards == NULL){
+  char **boards = chessgame_generate_boards(a);
+  
+  if(boards == NULL){
     elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');
-
   }
 
   PG_RETURN_POINTER(boards);
@@ -454,11 +483,9 @@ Datum chessboard_cmp(PG_FUNCTION_ARGS)
   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
 
-
+  char **boards 
 
 }
-
-
 
 /***************** CA FAUDRA REVOIR :) *************************************/
 /*
