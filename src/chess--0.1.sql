@@ -180,17 +180,17 @@ AS
 * GIN Operators
 ******************************************************************************/
 
-CREATE OR REPLACE FUNCTION chessboard_overlap(chessgame, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_overlap(chessboard, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_overlap'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_contains(chessgame, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_contains(chessboard, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contains'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessgame)
+CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contained'
 LANGUAGE C IMMUTABLE STRICT;
@@ -201,14 +201,14 @@ AS 'MODULE_PATHNAME', 'chessboard_eq'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OPERATOR &&(
-  LEFTARG = chessgame,
+  LEFTARG = chessboard,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_overlap,
   COMMUTATOR = &&
 );
 
 CREATE OPERATOR @>(
-  LEFTARG = chessgame,
+  LEFTARG = chessboard,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_contains,
   COMMUTATOR = @>
@@ -216,7 +216,7 @@ CREATE OPERATOR @>(
 
 CREATE OPERATOR <@(
   LEFTARG = chessboard,
-  RIGHTARG = chessgame,
+  RIGHTARG = chessboard,
   PROCEDURE = chessboard_contained,
   COMMUTATOR = <@
 );
@@ -238,26 +238,32 @@ AS 'MODULE_PATHNAME', 'chessboard_cmp'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame, internal)
-RETURNS chessboard[]
+RETURNS chessboard
 AS 'MODULE_PATHNAME', 'chessboard_extractValue'
 LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard)
--- RETURNS chessboard
--- AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard, internal, int2, internal, internal)
+RETURNS chessboard
+AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
+LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OR REPLACE FUNCTION chessboard_consistent(internal, chessboard, anyelement, chessboard, internal, internal)
+RETURNS BOOLEAN
+AS 'MODULE_PATHNAME', 'chessboard_consistent'
+LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OPERATOR CLASS gin_chessboard_ops
-DEFAULT FOR TYPE chessgame USING gin
+DEFAULT FOR TYPE chessgame USING GIN
 AS
-    OPERATOR 1 && (chessgame, chessboard), -- overlapping elements
-    OPERATOR 2 @> (chessgame, chessboard), -- contains
-    OPERATOR 3 <@ (chessboard, chessgame), -- is contained by
+    OPERATOR 1 && (chessboard, chessboard), -- overlapping elements
+    OPERATOR 2 @> (chessboard, chessboard), -- contains
+    OPERATOR 3 <@ (chessboard, chessboard), -- is contained by
     OPERATOR 4 = (chessboard, chessboard), -- equals
     FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function to compare this shit TODO
-    FUNCTION 2 chessboard_extractValue(chessgame, internal);
-    -- FUNCTION 3 chessboard_extractQuery(chessboard, internal, chessboard, internal, internal);
-    -- FUNCTION 4 chess_consistent(internal, chessboard, anyelement, chessboard, internal, internal);
+    FUNCTION 2 chessboard_extractValue(chessgame, internal),
+    FUNCTION 3 chessboard_extractQuery(chessboard, internal, int2, internal, internal),
+    FUNCTION 4 chessboard_consistent(internal, chessboard, anyelement, chessboard, internal, internal),
+    STORAGE chessboard;
 
 -- https://github.com/postgres/postgres/blob/master/contrib/intarray/_int_selfuncs.c#L29
 -- https://github.com/postgres/postgres/blob/master/src/backend/access/gin/ginarrayproc.c

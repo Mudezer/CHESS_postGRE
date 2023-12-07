@@ -402,44 +402,36 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_overlap);
 Datum chessboard_overlap(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
-  char **boards = chessgame_generate_boards(a);
+  elog(LOG, "chessboard_overlap");
+  ChessBoard **a = PG_GETARG_ChessBoard_P(0);
+  ChessBoard *b = PG_GETARG_ChessBoard_P(1);
 
-  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
-
-  char *query = strtok(b->fen, " ");
-    
-  for(int i = 0; i<(SCL_recordLength(a->record)+1);i++){
-
-    char *target = strtok(boards[i]," ");
-      for(int j = 0; j<strlen(target); j++){
-        for(int k = 0; k<strlen(query); k++){
-          if(target[j] == query[k]){
-            PG_RETURN_BOOL(true);
-          }
-        }
-      }
+  for (int i = 0; i < sizeof(a)/sizeof(ChessBoard); i++)
+  {
+    char *target = strtok(a[i]->fen, " ");
+    char *query = strtok(b->fen, " ");
+    if (strcmp(target, query) == 0)
+    {
+      PG_RETURN_BOOL(true);
+    }
   }
-
-
-PG_RETURN_BOOL(false);
-
-
+  PG_RETURN_BOOL(false);
 }
 
 
 PG_FUNCTION_INFO_V1(chessboard_contains);
 Datum chessboard_contains(PG_FUNCTION_ARGS) //left arg contains right arg
 {
-  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
-  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
-    
-  char **boards = chessgame_generate_boards(a);
+  elog(LOG, "chessboard_contains");
+  ChessBoard **a = PG_GETARG_ChessBoard_P(0);
+  ChessBoard *b = PG_GETARG_ChessBoard_P(1);
 
-  for(int i = 0; i<(SCL_recordLength(a->record)+1);i++){
-    char *target = strtok(boards[i]," ");
+  for (int i = 0; i < sizeof(a)/sizeof(ChessBoard); i++)
+  {
+    char *target = strtok(a[i]->fen, " ");
     char *query = strtok(b->fen, " ");
-    if(strcmp(target, query) == 0){
+    if (strcmp(target, query) == 0)
+    {
       PG_RETURN_BOOL(true);
     }
   }
@@ -449,29 +441,18 @@ Datum chessboard_contains(PG_FUNCTION_ARGS) //left arg contains right arg
 PG_FUNCTION_INFO_V1(chessboard_contained);
 Datum chessboard_contained(PG_FUNCTION_ARGS) //left arg contained in right arg
 {
-  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
-  ChessGame *b = chessgame_make(PG_GETARG_ChessGame_P(1));
-
-  char **boards = chessgame_generate_boards(b);
-
-  for(int i = 0; i<(SCL_recordLength(b->record)+1);i++){
-    char *target = strtok(boards[i]," ");
-    char *query = strtok(a->fen, " ");
-    if(strcmp(target, query) == 0){
-      PG_RETURN_BOOL(true);
-    }
-  }
-
+  elog(LOG, "chessboard_contained");
   PG_RETURN_BOOL(false);
 }
 
 PG_FUNCTION_INFO_V1(chessboard_eq);
 Datum chessboard_eq(PG_FUNCTION_ARGS)
 {
-  ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
-  ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+  elog(LOG, "chessboard_eq");
+  ChessBoard **a = PG_GETARG_ChessBoard_P(0);
+  ChessBoard *b = PG_GETARG_ChessBoard_P(1);
 
-  char *target = strtok(a->fen, " ");
+  char *target = strtok(a[0]->fen, " ");
   char *query = strtok(b->fen, " ");
 
   PG_RETURN_BOOL(strcmp(target, query) == 0);
@@ -494,6 +475,7 @@ Datum chessboard_eq(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_extractValue);
 Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 {
+  elog(LOG, "chessboard_extractValue");
   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
   int32 *nentries = (int32 *) PG_GETARG_POINTER(1);
   
@@ -519,14 +501,16 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_extractQuery);
 Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
 {
+  elog(LOG, "chessboard_extractQuery");
   ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
-  char *target = strtok(a->fen, " ");
-  PG_RETURN_POINTER(target);
+  //char *target = strtok(a->fen, " ");
+  PG_RETURN_POINTER(PointerGetDatum(a));
 }
 
 PG_FUNCTION_INFO_V1(chessboard_cmp);
 Datum chessboard_cmp(PG_FUNCTION_ARGS)
 {
+  elog(LOG, "chessboard_cmp");
   ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
 
@@ -547,46 +531,63 @@ Datum chessboard_cmp(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_consistent);
 Datum chessboard_consistent(PG_FUNCTION_ARGS)
 {
+  elog(LOG, "chessboard_consistent");
   bool *check = (bool *) PG_GETARG_POINTER(0);
-  StrategyNumber strategy = PG_GETARG_UINT16(1);
-  Oid subtype = PG_GETARG_OID(2);
-  Datum query = PG_GETARG_DATUM(3);
-  int32 nkeys = PG_GETARG_INT32(4);
-  StrategyNumber *strategies = (StrategyNumber *) PG_GETARG_POINTER(5);
-  bool *nullFlags = (bool *) PG_GETARG_POINTER(6);
-  Datum *queryValues = (Datum *) PG_GETARG_POINTER(7);
-  bool *checkFlags = (bool *) PG_GETARG_POINTER(8);
-
-  if (nkeys != 1)
-    ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-                    errmsg("GIN does not support non-default operators")));
-  if (nullFlags[0])
-    PG_RETURN_BOOL(false);
+  int16 strategy = PG_GETARG_UINT16(1);
+  Datum query = PG_GETARG_DATUM(2);
+  int32 nkeys = PG_GETARG_INT32(3);
+  bool res;
+  int i;
 
   switch (strategy)
-  {
-  case BTLessStrategyNumber:
-    *check = DatumGetInt32(queryValues[0]) < 0;
-    *checkFlags = true;
-    PG_RETURN_BOOL(true);
-  case BTLessEqualStrategyNumber:
-    *check = DatumGetInt32(queryValues[0]) <= 0;
-    *checkFlags = true;
-    PG_RETURN_BOOL(true);
-  case BTEqualStrategyNumber:
-    *check = DatumGetInt32(queryValues[0]) == 0;
-    *checkFlags = true;
-    PG_RETURN_BOOL(true);
-  case BTGreaterEqualStrategyNumber:
-    *check = DatumGetInt32(queryValues[0]) >= 0;
-    *checkFlags = true;
-    PG_RETURN_BOOL(true);
-  case BTGreaterStrategyNumber:
-    *check = DatumGetInt32(queryValues[0]) > 0;
-    *checkFlags = true;
-    PG_RETURN_BOOL(true);
-  default:
-    ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
-                    errmsg("GIN does not support non-default operators")));
-  }
+	{
+		case 1:
+			/* must have a match for at least one non-null element */
+			res = false;
+			for (i = 0; i < nkeys; i++)
+			{
+				if (check[i])
+				{
+					res = true;
+					break;
+				}
+			}
+			break;
+		case 2:
+			/* must have all elements in check[] true, and no nulls */
+			res = true;
+			for (i = 0; i < nkeys; i++)
+			{
+				if (!check[i])
+				{
+					res = false;
+					break;
+				}
+			}
+			break;
+		case 3:
+			/* can't do anything else useful here */
+			res = true;
+			break;
+		case 4:
+			/*
+			 * Must have all elements in check[] true; no discrimination
+			 * against nulls here.  This is because array_contain_compare and
+			 * array_eq handle nulls differently ...
+			 */
+			res = true;
+			for (i = 0; i < nkeys; i++)
+			{
+				if (!check[i])
+				{
+					res = false;
+					break;
+				}
+			}
+			break;
+		default:
+			res = false;
+	}
+
+	PG_RETURN_BOOL(res);
 }
