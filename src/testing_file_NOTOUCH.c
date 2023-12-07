@@ -131,10 +131,6 @@ static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 }
 
 
-
-
-
-
 /**
 *   TESTS
 */
@@ -347,6 +343,12 @@ static bool chessboard_contained(ChessBoard *a, ChessGame *b)
 //   PG_RETURN_BOOL(false);
 }
 
+static void testkikoo(char *fen){
+    ChessBoard *a = chessboard_make(fen);
+    printf("fen: %s\n", a->fen);
+}
+
+
 
 int main ()
 {
@@ -364,8 +366,9 @@ int main ()
 
     // char *target = strtok("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R", " ");
     // printf("target: %s\n", target);
-    if(chessboard_contained(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"),
-                            chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6"))){printf("TRUE\n");}
-                            else{printf("FALSE\n");}
+    // if(chessboard_contained(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"),
+    //                         chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6"))){printf("TRUE\n");}
+    //                         else{printf("FALSE\n");}
+    testkikoo("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R");
     return 0;
 }

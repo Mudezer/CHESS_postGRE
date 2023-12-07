@@ -499,22 +499,25 @@ PG_FUNCTION_INFO_V1(chessboard_extractValue);
 Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 {
   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
-
+  int32 *nentries = (int32 *) PG_GETARG_POINTER(1);
+  
   int len = SCL_recordLength(a->record);
-  // if(len == 0){elog(LOG, 'Error: the game is empty -> chessgame_extractValue');}
-
-  // if(a == NULL){ elog(LOG, 'Error: the game is empty -> chessgame_extractValue');}
+  Datum *results = palloc0(sizeof(Datum *)*(len+1));
 
   char **boards = chessgame_generate_boards(a);
-  char **result = palloc0(sizeof(char*)*len+1);
-  for(int i=0; i<len+1;i++){
-    result[i] = palloc0(sizeof(char)*SCL_FEN_MAX_LENGTH);
-    strcpy(result[i], boards[i]);
-  }
-  
-  // if(boards == NULL){elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');}
 
-  PG_RETURN_POINTER(*result);
+
+  // char **result = palloc0(sizeof(char*)*len+1);
+
+
+  for(int i=0; i<len+1;i++){
+    ChessBoard *temp = chessboard_make(boards[i]);
+    results[i] = PointerGetDatum(temp);
+    // strcpy(result[i], boards[i]);
+  }
+
+  // PG_RETURN_ARRAYTYPE_P(result);
+  PG_RETURN_POINTER(results);
 }
 
 PG_FUNCTION_INFO_V1(chessboard_extractQuery);

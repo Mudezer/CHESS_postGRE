@@ -185,7 +185,7 @@ explain analyse SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame, getFirstMoves('1. e4 e5',2) );
 
--- CREATE INDEX board_index ON chessgame_table USING GIN (p_chessgame);
+CREATE INDEX board_index ON chessgame_table USING GIN (p_chessgame);
 
 -- select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 3);
 

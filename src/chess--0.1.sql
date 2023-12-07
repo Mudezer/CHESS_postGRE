@@ -238,18 +238,18 @@ CREATE OPERATOR =(
  * GIN Support Functions
  ******************************************************************************/
 
--- CREATE OR REPLACE FUNCTION chessboard_cmp(chessboard, chessboard)
--- RETURNS INTEGER
--- AS 'MODULE_PATHNAME', 'chessboard_cmp'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_cmp(chessboard, chessboard)
+RETURNS INTEGER
+AS 'MODULE_PATHNAME', 'chessboard_cmp'
+LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame)
--- RETURNS internal
--- AS 'MODULE_PATHNAME', 'chessboard_extractValue'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame, internal)
+RETURNS chessboard[]
+AS 'MODULE_PATHNAME', 'chessboard_extractValue'
+LANGUAGE C IMMUTABLE STRICT;
 
 -- CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard)
--- RETURNS internal
+-- RETURNS chessboard
 -- AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
 -- LANGUAGE C IMMUTABLE STRICT;
 
@@ -259,9 +259,16 @@ AS
     OPERATOR 1 && (chessgame, chessboard), -- overlapping elements
     OPERATOR 2 @> (chessgame, chessboard), -- contains
     OPERATOR 3 <@ (chessboard, chessgame), -- is contained by
-    OPERATOR 4 = (chessboard, chessboard); -- equals
-    -- FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function to compare this shit TODO
-    -- FUNCTION 2 chessboard_extractValue(chessgame);
-    -- FUNCTION 3 chessboard_extractQuery(chessboard);
+    OPERATOR 4 = (chessboard, chessboard), -- equals
+    FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function to compare this shit TODO
+    FUNCTION 2 chessboard_extractValue(chessgame, internal);
+    -- FUNCTION 3 chessboard_extractQuery(chessboard, internal, chessboard, internal, internal);
+    -- FUNCTION 4 chess_consistent(internal, chessboard, anyelement, chessboard, internal, internal);
+
+-- https://github.com/postgres/postgres/blob/master/contrib/intarray/_int_selfuncs.c#L29
+-- https://github.com/postgres/postgres/blob/master/src/backend/access/gin/ginarrayproc.c
+-- https://github.com/postgres/postgres/blob/master/contrib/intarray/intarray--1.1--1.2.sql
+-- https://github.com/postgres/postgres/blob/master/contrib/btree_gin/btree_gin--1.0.sql
+-- https://github.com/postgres/postgres/blob/master/contrib/btree_gin/btree_gin.c
 
 
