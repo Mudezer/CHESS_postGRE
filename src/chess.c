@@ -339,68 +339,64 @@ static char ** chessgame_generate_boards(ChessGame *a)
 
 
 /*****************************************************************************
- * Operators for chessgame
+ * B-Tree Operators
  *****************************************************************************/
 
 PG_FUNCTION_INFO_V1(chessgame_eq);
 Datum chessgame_eq(PG_FUNCTION_ARGS)
 {
-  char *a = PG_GETARG_ChessGame_P(0);
-  char *b = PG_GETARG_ChessGame_P(1);
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
   PG_RETURN_BOOL(strcmp(a, b) == 0);
-}
-
-PG_FUNCTION_INFO_V1(chessgame_ne);
-Datum chessgame_ne(PG_FUNCTION_ARGS)
-{
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) != 0);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_le);
 Datum chessgame_le(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) <= 0);
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
+  PG_RETURN_BOOL(strcmp(a, b) <= 0);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_lt);
 Datum chessgame_lt(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) < 0);
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
+  PG_RETURN_BOOL(strcmp(a, b) < 0);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_ge);
 Datum chessgame_ge(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) >= 0);
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
+  PG_RETURN_BOOL(strcmp(a, b) >= 0);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_gt);
 Datum chessgame_gt(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_BOOL(strcmp(a->pgn, b->pgn) > 0);
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
+  PG_RETURN_BOOL(strcmp(a, b) > 0);
 }
+
+/*****************************************************************************
+ * B-Tree Support Function
+*****************************************************************************/
 
 PG_FUNCTION_INFO_V1(chessgame_cmp);
 Datum chessgame_cmp(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = PG_GETARG_ChessGame_P(0);
-  ChessGame *b = PG_GETARG_ChessGame_P(1);
-  PG_RETURN_INT32(strcmp(a->pgn, b->pgn));
+  char *a = DatumGetPointer(PG_GETARG_DATUM(0));
+  char *b = DatumGetPointer(PG_GETARG_DATUM(1));
+  PG_RETURN_INT32(strcmp(a, b));
 }
 
 
 /*****************************************************************************
- * GIN INDEX OPERATORS
+ * GIN Operators
 *****************************************************************************/
 
 PG_FUNCTION_INFO_V1(chessboard_overlap);
@@ -546,4 +542,51 @@ Datum chessboard_cmp(PG_FUNCTION_ARGS)
     PG_RETURN_INT32(-1);
   }
 
+}
+
+PG_FUNCTION_INFO_V1(chessboard_consistent);
+Datum chessboard_consistent(PG_FUNCTION_ARGS)
+{
+  bool *check = (bool *) PG_GETARG_POINTER(0);
+  StrategyNumber strategy = PG_GETARG_UINT16(1);
+  Oid subtype = PG_GETARG_OID(2);
+  Datum query = PG_GETARG_DATUM(3);
+  int32 nkeys = PG_GETARG_INT32(4);
+  StrategyNumber *strategies = (StrategyNumber *) PG_GETARG_POINTER(5);
+  bool *nullFlags = (bool *) PG_GETARG_POINTER(6);
+  Datum *queryValues = (Datum *) PG_GETARG_POINTER(7);
+  bool *checkFlags = (bool *) PG_GETARG_POINTER(8);
+
+  if (nkeys != 1)
+    ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+                    errmsg("GIN does not support non-default operators")));
+  if (nullFlags[0])
+    PG_RETURN_BOOL(false);
+
+  switch (strategy)
+  {
+  case BTLessStrategyNumber:
+    *check = DatumGetInt32(queryValues[0]) < 0;
+    *checkFlags = true;
+    PG_RETURN_BOOL(true);
+  case BTLessEqualStrategyNumber:
+    *check = DatumGetInt32(queryValues[0]) <= 0;
+    *checkFlags = true;
+    PG_RETURN_BOOL(true);
+  case BTEqualStrategyNumber:
+    *check = DatumGetInt32(queryValues[0]) == 0;
+    *checkFlags = true;
+    PG_RETURN_BOOL(true);
+  case BTGreaterEqualStrategyNumber:
+    *check = DatumGetInt32(queryValues[0]) >= 0;
+    *checkFlags = true;
+    PG_RETURN_BOOL(true);
+  case BTGreaterStrategyNumber:
+    *check = DatumGetInt32(queryValues[0]) > 0;
+    *checkFlags = true;
+    PG_RETURN_BOOL(true);
+  default:
+    ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+                    errmsg("GIN does not support non-default operators")));
+  }
 }

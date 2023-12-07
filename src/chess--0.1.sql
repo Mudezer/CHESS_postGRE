@@ -58,7 +58,7 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 /******************************************************************************
- * PREDICATES
+ * Predicates
  ******************************************************************************/
 
 CREATE FUNCTION hasOpening(chessgame, chessgame)
@@ -72,7 +72,7 @@ CREATE FUNCTION hasBoard(chessgame, chessboard, int)
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
 /******************************************************************************
- * B-tree Operators
+ * B-Tree Operators
  ******************************************************************************/
 
 CREATE OR REPLACE FUNCTION chessgame_eq(chessgame, chessgame)
@@ -80,9 +80,9 @@ RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessgame_eq'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessgame_ne(chessgame, chessgame)
+CREATE OR REPLACE FUNCTION chessgame_le(chessgame, chessgame)
 RETURNS BOOLEAN
-AS 'MODULE_PATHNAME', 'chessgame_ne'
+AS 'MODULE_PATHNAME', 'chessgame_le'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessgame_lt(chessgame, chessgame)
@@ -90,19 +90,14 @@ RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessgame_lt'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessgame_le(chessgame, chessgame)
+CREATE OR REPLACE FUNCTION chessgame_ge(chessgame, chessgame)
 RETURNS BOOLEAN
-AS 'MODULE_PATHNAME', 'chessgame_le'
+AS 'MODULE_PATHNAME', 'chessgame_ge'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessgame_gt(chessgame, chessgame)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessgame_gt'
-LANGUAGE C IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION chessgame_ge(chessgame, chessgame)
-RETURNS BOOLEAN
-AS 'MODULE_PATHNAME', 'chessgame_ge'
 LANGUAGE C IMMUTABLE STRICT;
 
 
@@ -111,7 +106,6 @@ CREATE OPERATOR = (
   RIGHTARG = chessgame,
   PROCEDURE = chessgame_eq,
   COMMUTATOR = =,
-  NEGATOR = <>,
   RESTRICT = eqsel,
   JOIN = eqjoinsel
 );
