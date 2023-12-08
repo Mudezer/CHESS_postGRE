@@ -4251,15 +4251,21 @@ INSERT INTO chessboard_table(p_chessboard) VALUES
     ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
     ;
 
--- explain analyze SELECT count(*)
--- FROM chessgame_table
--- WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
 
-create index btree on chessgame_table(p_chessgame);
-create index gin on chessgame_table USING GIN (p_chessgame);
+
+create index btree_index on chessgame_table USING btree (p_chessgame);
+-- create index gin on chessgame_table USING GIN (p_chessgame);
+
+
+explain analyze SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
 
 set session enable_seqscan=false; 
 
--- explain analyze SELECT count(*)
--- FROM chessgame_table
--- WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
+explain analyze SELECT count(*)
+FROM chessgame_table
+WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
+
+
+SELECT getFirstMoves('1. e4 e6 2. d4 d5', 3);

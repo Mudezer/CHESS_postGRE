@@ -21,13 +21,7 @@
 
 #define DatumGetChessGameP(X)  ((ChessGame *) DatumGetPointer(X))
 #define ChessGamePGetDatum(X)  PointerGetDatum(X)
-
-/* PETER_MON_CRANE.py */
 #define PG_GETARG_ChessGame_P(n) DatumGetChessGameP(PG_GETARG_DATUM(n))
- // ça la c'est de la merde, soit on stocke le struct soit on passe le string et on chessmake 
- // le problème c'est que dans le pdf il demande que les fonctions puissent recevoir des chessgame et pas des string donc
- //, le serpent se mord t'il la queue?
-
 #define PG_RETURN_ChessGame_P(x) return ChessGamePGetDatum(x)
 
 

@@ -61,12 +61,12 @@ CREATE FUNCTION getFirstMoves(chessgame, int)
  * Predicates
  ******************************************************************************/
 
-CREATE FUNCTION hasOpening(chessgame, chessgame)
+CREATE OR REPLACE FUNCTION hasOpening(chessgame, chessgame)
   RETURNS boolean
   AS 'MODULE_PATHNAME', 'hasOpening2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
 
-CREATE FUNCTION hasBoard(chessgame, chessboard, int)
+CREATE OR REPLACE FUNCTION hasBoard(chessgame, chessboard, int)
   RETURNS boolean
   AS 'MODULE_PATHNAME', 'hasBoard2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
@@ -180,35 +180,35 @@ AS
 * GIN Operators
 ******************************************************************************/
 
-CREATE OR REPLACE FUNCTION chessboard_overlap(chessboard, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_overlap(chessgame, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_overlap'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_contains(chessboard, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_contains(chessgame, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contains'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessgame)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contained'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_eq(chessboard, chessboard)
+CREATE OR REPLACE FUNCTION chessboard_eq(chessgame, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_eq'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OPERATOR &&(
-  LEFTARG = chessboard,
+  LEFTARG = chessgame,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_overlap,
   COMMUTATOR = &&
 );
 
 CREATE OPERATOR @>(
-  LEFTARG = chessboard,
+  LEFTARG = chessgame,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_contains,
   COMMUTATOR = @>
@@ -216,13 +216,13 @@ CREATE OPERATOR @>(
 
 CREATE OPERATOR <@(
   LEFTARG = chessboard,
-  RIGHTARG = chessboard,
+  RIGHTARG = chessgame,
   PROCEDURE = chessboard_contained,
   COMMUTATOR = <@
 );
 
 CREATE OPERATOR =(
-  LEFTARG = chessboard,
+  LEFTARG = chessgame,
   RIGHTARG = chessboard,
   PROCEDURE = chessboard_eq,
   COMMUTATOR = =
@@ -237,13 +237,13 @@ RETURNS INTEGER
 AS 'MODULE_PATHNAME', 'chessboard_cmp'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame, internal)
-RETURNS chessboard
+CREATE OR REPLACE FUNCTION chessboard_extractValue(chessgame, internal, internal)
+RETURNS internal
 AS 'MODULE_PATHNAME', 'chessboard_extractValue'
 LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessboard_extractQuery(chessboard, internal, int2, internal, internal)
-RETURNS chessboard
+RETURNS internal
 AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
 LANGUAGE C IMMUTABLE STRICT;
 
@@ -252,14 +252,14 @@ RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_consistent'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OPERATOR CLASS gin_chessboard_ops
-DEFAULT FOR TYPE chessgame USING GIN
+CREATE OPERATOR CLASS gin_chessboard_ops  
+DEFAULT FOR TYPE chessgame USING gin
 AS
-    OPERATOR 1 && (chessboard, chessboard), -- overlapping elements
-    OPERATOR 2 @> (chessboard, chessboard), -- contains
-    OPERATOR 3 <@ (chessboard, chessboard), -- is contained by
-    OPERATOR 4 = (chessboard, chessboard), -- equals
-    FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function to compare this shit TODO
+    OPERATOR 1 && (chessgame, chessboard), -- overlapping elements
+    OPERATOR 2 @> (chessgame, chessboard), -- contains
+    OPERATOR 3 <@ (chessboard, chessgame), -- is contained by, will never be used
+    OPERATOR 4 = (chessgame, chessboard), -- equals
+    FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function
     FUNCTION 2 chessboard_extractValue(chessgame, internal),
     FUNCTION 3 chessboard_extractQuery(chessboard, internal, int2, internal, internal),
     FUNCTION 4 chessboard_consistent(internal, chessboard, anyelement, chessboard, internal, internal),
