@@ -21,10 +21,10 @@ CREATE TABLE chessgame_table(
     p_chessgame chessgame
 );
 
-CREATE TABLE chessboard_table(
-    id SERIAL PRIMARY KEY NOT NULL,
-    p_chessboard chessboard
-);
+-- CREATE TABLE chessboard_table(
+--     id SERIAL PRIMARY KEY NOT NULL,
+--     p_chessboard chessboard
+-- );
 
 
 -- INSERTION
@@ -49,10 +49,10 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6 5.d4 Bg4 6.Qd3 Nc6 7.Bxf7+ Kxf7 8.Qb3+ Kg6 9.Qxb7 Nxd4 10.Qxa8 Nf6 11.Na3 f3 12.g3 Bh3+ 13.Ke1 Qg4 14.Be3 d5 15.Qxa7 Nc6 16.Qxc7 d4 17.Bd2 Qxe4+ 18.Kd1 f2 19.Nxh3 Qf3+ 20.Kc1 Qxh1+  0-1')     
     ;
 
-INSERT INTO chessboard_table(p_chessboard) VALUES 
-    ('3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24'),
-    ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
-    ;
+-- INSERT INTO chessboard_table(p_chessboard) VALUES 
+--     ('3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24'),
+--     ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
+--     ;
 
 
 -- select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1); -- 1. e4
@@ -60,5 +60,18 @@ INSERT INTO chessboard_table(p_chessboard) VALUES
 
 -- select has_opening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1));
 
-select * from chessgame_table;
+-- select * from chessgame_table;
 
+create index gin on chessgame_table USING GIN (p_chessgame);
+
+-- explain
+SELECT count(*)
+FROM chessgame_table
+WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1', 3);
+
+set enable_seqscan=false;
+
+-- explain
+SELECT count(*)
+FROM chessgame_table
+WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1', 3);

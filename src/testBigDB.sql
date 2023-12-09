@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS favorite_game;
 DROP TABLE IF EXISTS chessgame_table;
 DROP TABLE IF EXISTS chessboard_table;
 
-set enable_seqscan=true;
+-- set enable_seqscan=true;
 
 -- CREATE EXTENSION
 
@@ -21,10 +21,10 @@ CREATE TABLE chessgame_table(
     p_chessgame chessgame
 );
 
-CREATE TABLE chessboard_table(
-    id SERIAL PRIMARY KEY NOT NULL,
-    p_chessboard chessboard
-);
+-- CREATE TABLE chessboard_table(
+--     id SERIAL PRIMARY KEY NOT NULL,
+--     p_chessboard chessboard
+-- );
 
 
 -- INSERTION
@@ -4246,26 +4246,40 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 c5 2. Nf3 d6 3. Bb5+ Nd7 4. O-O a6 5. Bd3 Ngf6 6. Re1 e6 7. c3 b5 8. Bc2 c4 9. a4 Bb7 10. axb5 axb5 11. Rxa8 Qxa8 12. Na3 Be7 13. Nxb5 O-O 14. Qe2 Rc8 15. Na3 d5 16. exd5 Bxd5 17. d4 cxd3 18. Qxd3 h6 19. b4 Be4 20. Qe3 Bxc2 21. Nxc2 Nd5 22. Qd2 Rxc3 23. Bb2 Rc8 24. Nfd4 Qa2 25. Bc1 Bg5 26. Ne3 Qa4 27. b5 Nc5 28. Nc6 Qxb5 29. Nd4 Qa4 30. Bb2 Ne4 31. Qd3 Bxe3 32. Qxe4 Qb4 33. Qb1 Bxd4 0-')
     ;
 
-INSERT INTO chessboard_table(p_chessboard) VALUES 
-    ('3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24'),
-    ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
-    ;
+-- INSERT INTO chessboard_table(p_chessboard) VALUES 
+--     ('3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24'),
+--     ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
+--     ;
 
 
 
-create index btree_index on chessgame_table USING btree (p_chessgame);
--- create index gin on chessgame_table USING GIN (p_chessgame);
+-- create index btree_index on chessgame_table USING btree (p_chessgame);
+create index gin on chessgame_table USING GIN (p_chessgame);
 
 
-explain analyze SELECT count(*)
+-- explain analyze SELECT count(*)
+-- FROM chessgame_table
+-- WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
+
+-- set session enable_seqscan=false; 
+
+-- explain analyze SELECT count(*)
+-- FROM chessgame_table
+-- WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
+
+
+-- SELECT getFirstMoves('1. e4 e6 2. d4 d5', 3);
+
+-- TESTING GIN INDEX HERE
+
+explain analyse
+SELECT count(*)
 FROM chessgame_table
-WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1';
 
-set session enable_seqscan=false; 
+set enable_seqscan=false;
 
-explain analyze SELECT count(*)
+explain analyse
+SELECT count(*)
 FROM chessgame_table
-WHERE hasOpening(p_chessgame,'1. e4 e6 2. d4 d5');
-
-
-SELECT getFirstMoves('1. e4 e6 2. d4 d5', 3);
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1';
