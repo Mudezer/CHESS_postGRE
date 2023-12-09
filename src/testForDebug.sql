@@ -49,12 +49,6 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6 5.d4 Bg4 6.Qd3 Nc6 7.Bxf7+ Kxf7 8.Qb3+ Kg6 9.Qxb7 Nxd4 10.Qxa8 Nf6 11.Na3 f3 12.g3 Bh3+ 13.Ke1 Qg4 14.Be3 d5 15.Qxa7 Nc6 16.Qxc7 d4 17.Bd2 Qxe4+ 18.Kd1 f2 19.Nxh3 Qf3+ 20.Kc1 Qxh1+  0-1')     
     ;
 
--- INSERT INTO chessboard_table(p_chessboard) VALUES 
---     ('3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24'),
---     ('rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3')
---     ;
-
-
 -- select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1); -- 1. e4
 -- select hasOpening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1)); -- true but return false
 
@@ -62,16 +56,29 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
 
 -- select * from chessgame_table;
 
-create index gin on chessgame_table USING GIN (p_chessgame);
+-- create index chessgame_btree on chessgame_table USING btree (p_chessgame btree_chessgame_ops);
+create index chessboard_gin on chessgame_table USING gin (p_chessgame gin_chessboard_ops);
 
--- explain
+explain analyse
 SELECT count(*)
 FROM chessgame_table
-WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1', 3);
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-set enable_seqscan=false;
+-- explain analyse
+-- SELECT *
+-- FROM chessgame_table
+-- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
 
--- explain
+set enable_seqscan TO OFF;
+
+explain analyse
 SELECT count(*)
 FROM chessgame_table
-WHERE hasBoard(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1', 3);
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+-- explain analyse
+-- SELECT *
+-- FROM chessgame_table
+-- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+
+-- vacuum analyze;

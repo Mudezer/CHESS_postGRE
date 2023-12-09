@@ -387,6 +387,41 @@ Datum chessboard_contains(PG_FUNCTION_ARGS)
 
 }
 
+PG_FUNCTION_INFO_V1(chessboard_contained); //  right arg is contained by left arg
+Datum chessboard_contained(PG_FUNCTION_ARGS)
+{
+  elog(LOG, "chessboard_contained\n");
+  ChessBoard *value = PG_GETARG_ChessBoard_P(0);
+  ChessGame *query = PG_GETARG_ChessGame_P(1);
+
+  int moveNumber = SCL_recordLength(query->record)+1;
+  bool result = hasBoard(query, value , moveNumber);
+  PG_RETURN_BOOL(result);
+}
+
+PG_FUNCTION_INFO_V1(chessboard_overlap);
+Datum chessboard_overlap(PG_FUNCTION_ARGS)
+{
+  elog(LOG, "chessboard_overlap\n");
+  ChessGame *value = PG_GETARG_ChessGame_P(0);
+  ChessGame *query = PG_GETARG_ChessGame_P(1);
+
+  int na = SCL_recordLength(value->record);
+  int nb = SCL_recordLength(query->record);
+
+  bool result = false;
+
+  for(int i = 0; i <= na ; i++){
+    for(int j = 0; j <= nb ; j++){
+      if(query->record[i] == value->record[j]){
+        result = true;
+        break;
+      }
+    }
+  }
+  result = false;
+  PG_RETURN_BOOL(result);
+}
 
 PG_FUNCTION_INFO_V1(chessboard_eq);
 Datum chessboard_eq(PG_FUNCTION_ARGS)
@@ -436,8 +471,8 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 
   Datum *entries = palloc(sizeof(Datum) * len); //array of boards in Datum format (convenenient for postgres)
   // je sais pas si il faut mettre ça "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ou pas => faut essayer pour savoir
-  // entries[0] = PointerGetDatum(chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")); //initial board
-  entries[0] = (Datum) chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  entries[0] = PointerGetDatum(chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")); //initial board
+  // entries[0] = (Datum) chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   elog(LOG, "chessboard_extractValue2\n");
   SCL_Board *tempBoard = palloc0(sizeof(SCL_Board));
   char tempFen[SCL_FEN_MAX_LENGTH];
@@ -446,8 +481,8 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
   for(int i =1; i <= len; i++){
     SCL_recordApply(a->record, *tempBoard, i);
     SCL_boardToFEN(tempBoard, tempFen);
-    // char *tempState = strtok(tmp, " ");
-    ChessBoard *temp = chessboard_make(tempFen);
+    char *tempState = strtok(tempFen, " ");
+    ChessBoard *temp = chessboard_make(tempState);
     entries[i] = PointerGetDatum(temp);
   }
   
@@ -472,19 +507,21 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
   ChessBoard *temp = palloc0(sizeof(ChessBoard));
 
   if(strategy == 1){ // right arg(query) overlaps left arg(index)
-    ChessBoard *a = PG_GETARG_ChessBoard_P(0);
-    char *tempBoard = chessboard_to_str(a);
-    // char *tempState = strtok(tempBoard, " ");
-    ChessBoard *query = chessboard_make(tempBoard);
-    entries = palloc0(sizeof(Datum) * *nentries);
-    entries[0] = PointerGetDatum(query);
-    *nentries = (int32) 1;
+    ChessGame *a = PG_GETARG_ChessGame_P(0);
+    // entries = chessboard_extractValue(a, &nentries);
+    entries = (Datum *)
+			DatumGetPointer(DirectFunctionCall2(chessboard_extractValue,
+												PG_GETARG_DATUM(0),
+												PointerGetDatum(nentries)));
+    if(entries == NULL){
+      elog(LOG, "entries is NULL | strategy 3\n");
+    }
   }
   else if(strategy ==2){ // left arg(index) contains right arg(query)
     ChessBoard *a = PG_GETARG_ChessBoard_P(0);
     char *tempBoard = chessboard_to_str(a);
-    // char *tempState = strtok(tempBoard, " ");
-    ChessBoard *query = chessboard_make(tempBoard);
+    char *tempState = strtok(tempBoard, " ");
+    ChessBoard *query = chessboard_make(tempState);
     entries = palloc0(sizeof(Datum) * *nentries);
     entries[0] = PointerGetDatum(query);
     *nentries = (int32) 1;
@@ -503,8 +540,8 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
   else if(strategy == 4){ // left arg(index) equals right arg(query)
     ChessBoard *a = PG_GETARG_ChessBoard_P(0);
     char *tempBoard = chessboard_to_str(a);
-    // char *tempState = strtok(tempBoard, " ");
-    ChessBoard *query = chessboard_make(tempBoard);
+    char *tempState = strtok(tempBoard, " ");
+    ChessBoard *query = chessboard_make(tempState);
     entries = palloc0(sizeof(Datum) * *nentries);
     entries[0] = PointerGetDatum(query);
     *nentries = (int32) 1;
@@ -521,9 +558,57 @@ PG_FUNCTION_INFO_V1(chessboard_consistent);
 Datum chessboard_consistent(PG_FUNCTION_ARGS)
 {
   elog(LOG, "chessboard_consistent\n");
-  uint16 strategy = PG_GETARG_UINT16(2);
+  bool *check = (bool *) PG_GETARG_POINTER(0);
+  uint16 strategy = PG_GETARG_UINT16(1);
+
+  int32 nkeys = PG_GETARG_INT32(3);
+
   bool *recheck = (bool *) PG_GETARG_POINTER(5);
-  *recheck = false;
-  PG_RETURN_BOOL(true);
+  bool res = false;
+  int32 i;
+
+  switch(strategy)
+  {
+    case 1: //au moins un des element dans check est vrai donc res = true
+      *recheck = false;
+      res = true;
+      break;
+    case 2:
+      /* result is not lossy */
+			*recheck = false;
+			/* Must have all elements in check[] true */
+			res = true;
+			for (i = 0; i < nkeys; i++)
+			{
+				if (!check[i])
+				{
+					res = false;
+					break;
+				}
+			}
+			break;
+    case 3:
+      *recheck = true;
+      res = true;
+      break;
+    case 4:
+      /* we will need recheck */
+			*recheck = true;
+			/* Must have all elements in check[] true */
+			res = true;
+			for (i = 0; i < nkeys; i++)
+			{
+				if (!check[i])
+				{
+					res = false;
+					break;
+				}
+			}
+			break;
+    default:
+      elog(LOG, "chessboard_consistent: unknown strategy number: %d", strategy);
+  }
+
+  PG_RETURN_BOOL(res);
 }
 

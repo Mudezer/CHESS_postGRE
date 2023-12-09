@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS favorite_game;
 DROP TABLE IF EXISTS chessgame_table;
 DROP TABLE IF EXISTS chessboard_table;
 
--- set enable_seqscan=true;
+set enable_seqscan=true;
 
 -- CREATE EXTENSION
 
@@ -4254,7 +4254,7 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
 
 
 -- create index btree_index on chessgame_table USING btree (p_chessgame);
-create index gin on chessgame_table USING GIN (p_chessgame);
+
 
 
 -- explain analyze SELECT count(*)
@@ -4272,14 +4272,30 @@ create index gin on chessgame_table USING GIN (p_chessgame);
 
 -- TESTING GIN INDEX HERE
 
+explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
+
+-- explain analyse
+-- SELECT count(*)
+-- FROM chessgame_table
+-- WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+-- explain analyse
+-- SELECT *
+-- FROM chessgame_table
+-- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+
+create index gin on chessgame_table USING GIN (p_chessgame);
+set enable_seqscan TO OFF;
+
+-- explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
+
 explain analyse
 SELECT count(*)
 FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1';
-
-set enable_seqscan=false;
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 explain analyse
-SELECT count(*)
+SELECT *
 FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkqmonenormefiak - 0 1';
+WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+

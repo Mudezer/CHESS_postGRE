@@ -47,12 +47,12 @@ COMMENT ON TYPE chessgame IS 'chessgame datatype for PostgreSQL';
  * GETTERS
  ******************************************************************************/
 
-CREATE FUNCTION getBoard(chessgame, int)
+CREATE FUNCTION getBoard(chessgame, INTEGER)
   RETURNS chessboard
   AS 'MODULE_PATHNAME', 'getBoard2'
   LANGUAGE C IMMUTABLE;
 
-CREATE FUNCTION getFirstMoves(chessgame, int)
+CREATE FUNCTION getFirstMoves(chessgame, INTEGER)
   RETURNS chessgame
   AS 'MODULE_PATHNAME', 'getFirstMoves2'
   LANGUAGE C IMMUTABLE;
@@ -190,32 +190,32 @@ AS
 * GIN Operators
 ******************************************************************************/
 
--- CREATE OR REPLACE FUNCTION chessboard_overlap(chessgame, chessboard)
--- RETURNS BOOLEAN
--- AS 'MODULE_PATHNAME', 'chessboard_overlap'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_overlap(chessgame, chessgame)
+RETURNS BOOLEAN
+AS 'MODULE_PATHNAME', 'chessboard_overlap'
+LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessboard_contains(chessgame, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_contains'
 LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessgame)
--- RETURNS BOOLEAN
--- AS 'MODULE_PATHNAME', 'chessboard_contained'
--- LANGUAGE C IMMUTABLE STRICT;
+CREATE OR REPLACE FUNCTION chessboard_contained(chessboard, chessgame)
+RETURNS BOOLEAN
+AS 'MODULE_PATHNAME', 'chessboard_contained'
+LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION chessboard_eq(chessgame, chessboard)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_eq'
 LANGUAGE C IMMUTABLE STRICT;
 
--- CREATE OPERATOR &&(
---   LEFTARG = chessgame,
---   RIGHTARG = chessboard,
---   PROCEDURE = chessboard_overlap,
---   COMMUTATOR = &&
--- );
+CREATE OPERATOR &&(
+  LEFTARG = chessgame,
+  RIGHTARG = chessgame,
+  PROCEDURE = chessboard_overlap,
+  COMMUTATOR = &&
+);
 
 CREATE OPERATOR @>(
   LEFTARG = chessgame,
@@ -226,14 +226,14 @@ CREATE OPERATOR @>(
 	-- JOIN = contjoinsel
 );
 
--- CREATE OPERATOR <@(
---   LEFTARG = chessboard,
---   RIGHTARG = chessgame,
---   PROCEDURE = chessboard_contained,
---   COMMUTATOR = '@>'
---   -- RESTRICT = contsel,
--- 	-- JOIN = contjoinsel
--- );
+CREATE OPERATOR <@(
+  LEFTARG = chessboard,
+  RIGHTARG = chessgame,
+  PROCEDURE = chessboard_contained,
+  COMMUTATOR = '@>'
+  -- RESTRICT = contsel,
+	-- JOIN = contjoinsel
+);
 
 CREATE OPERATOR =(
   LEFTARG = chessgame,
@@ -261,7 +261,7 @@ RETURNS internal
 AS 'MODULE_PATHNAME', 'chessboard_extractQuery'
 LANGUAGE C IMMUTABLE STRICT;
 
-CREATE OR REPLACE FUNCTION chessboard_consistent(internal, chessboard, anyelement, chessboard, internal, internal)
+CREATE OR REPLACE FUNCTION chessboard_consistent(internal, int2, chessboard, int4, internal, internal)
 RETURNS BOOLEAN
 AS 'MODULE_PATHNAME', 'chessboard_consistent'
 LANGUAGE C IMMUTABLE STRICT;
@@ -269,20 +269,14 @@ LANGUAGE C IMMUTABLE STRICT;
 CREATE OPERATOR CLASS gin_chessboard_ops  
 DEFAULT FOR TYPE chessgame USING gin
 AS
-    -- OPERATOR 1 && (chessgame, chessboard), -- overlapping elements
+    OPERATOR 1 && (chessgame, chessgame), -- overlapping elements
     OPERATOR 2 @> (chessgame, chessboard), -- contains
-    -- OPERATOR 3 <@ (chessboard, chessgame), -- is contained by, will never be used
+    OPERATOR 3 <@ (chessboard, chessgame), -- is contained by, will never be used
     OPERATOR 4 = (chessgame, chessboard), -- equals
     FUNCTION 1 chessboard_cmp(chessboard, chessboard), -- support function
     FUNCTION 2 chessboard_extractValue(chessgame, internal),
     FUNCTION 3 chessboard_extractQuery(chessboard, internal, int2, internal, internal),
-    FUNCTION 4 chessboard_consistent(internal, chessboard, anyelement, chessboard, internal, internal),
+    FUNCTION 4 chessboard_consistent(internal, int2, chessboard, int4, internal, internal),
     STORAGE chessboard;
-
--- https://github.com/postgres/postgres/blob/master/contrib/intarray/_int_selfuncs.c#L29
--- https://github.com/postgres/postgres/blob/master/src/backend/access/gin/ginarrayproc.c
--- https://github.com/postgres/postgres/blob/master/contrib/intarray/intarray--1.1--1.2.sql
--- https://github.com/postgres/postgres/blob/master/contrib/btree_gin/btree_gin--1.0.sql
--- https://github.com/postgres/postgres/blob/master/contrib/btree_gin/btree_gin.c
 
 
