@@ -7,12 +7,12 @@
 #define BOARD_SIZE 8
 #define SCL_BOARD_SQUARES 64
 #define MAX_FEN_LENGTH 100
-#define MAX_PGN_LENGTH 100 * MAX_MOVE_LENGTH
+#define MAX_PGN_LENGTH 200 * MAX_MOVE_LENGTH
 #define MAX_MOVE_LENGTH 7
 #define SCL_BOARD_STATE_SIZE 69
 
 
-/* fmgr macros chessboard type */ //TODO put them in chess.h
+/* fmgr macros chessboard type */
 
 #define DatumGetChessBoardP(X)  ((ChessBoard *) DatumGetPointer(X))
 #define ChessBoardPGetDatum(X)  PointerGetDatum(X)
@@ -31,6 +31,7 @@
  *****************************************************************************/
 
 // Structure to represent the chess game
+
 typedef struct
 {
     char            pgn[MAX_PGN_LENGTH];

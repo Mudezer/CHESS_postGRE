@@ -131,10 +131,6 @@ static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 }
 
 
-
-
-
-
 /**
 *   TESTS
 */
@@ -232,6 +228,127 @@ void test_getBoard() {
         printf("Test getBoard failed\n");
 }
 
+static char ** chessgame_generate_boards(ChessGame *a)
+{
+    int len = SCL_recordLength(a->record);
+    if(len == 0){
+    // elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+    printf("Error: the length is empty -> chessgame_extractValue");
+    }
+
+    if(a == NULL){
+    // elog(LOG, 'Error: the game is empty -> chessgame_extractValue');
+    printf("Error: the game is empty -> chessgame_extractValue");
+    }
+
+    char **boards = malloc(sizeof(char*)*len+1);
+    boards[0] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+    strcpy(boards[0],"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+
+
+    SCL_Board *temp = malloc(sizeof(SCL_Board));
+    printf("starting turbo tebug\n");
+    for(int i = 0; i < len; i++){
+
+        SCL_recordApply(a->record, *temp, i+1);
+        boards[i+1] = malloc(sizeof(char)*SCL_FEN_MAX_LENGTH);
+        char tmp[SCL_FEN_MAX_LENGTH];
+        SCL_boardToFEN(temp, tmp);
+        char* tmp2 = strtok(tmp, " ");
+        strcpy(boards[i+1], tmp2);
+        }
+
+        if(boards == NULL){
+        // elog(LOG, 'Error: the boards are empty -> chessgame_extractValue');
+        printf("Error: the boards are empty -> chessgame_extractValue");
+    }
+
+    free(temp);
+
+    return boards;
+}
+
+static void chessgame_extractValue(ChessGame *a){
+//   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+
+    char **boards = chessgame_generate_boards(a);
+    printf("all board generated yaya\n");
+    free(boards);
+    free(a);
+}
+
+static void chessgame_extractQuery(ChessBoard *a){
+
+// ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+    
+    char *target = strtok(a->fen, " ");
+    printf("debug wololo\n");
+    printf("target: %s\n", target);
+
+    free(a);
+}
+
+
+// Datum chessboard_overlap(PG_FUNCTION_ARGS)
+static bool chessboard_overlap(ChessGame *a, ChessBoard *b)
+{
+
+//   ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  char **boards = chessgame_generate_boards(a);
+
+//   ChessBoard *b = chessboard_make(PG_GETARG_ChessBoard_P(1));
+
+  char *query = strtok(b->fen, " ");
+    
+  for(int i = 0; i<(SCL_recordLength(a->record)+1);i++){
+    
+    char *target = strtok(boards[i]," ");
+    for(int j = 0; j<strlen(target); j++){
+            for(int k = 0; k<strlen(query); k++){
+                    if(target[j] == query[k]){
+                   
+                        return true;
+                    //   PG_RETURN_BOOL(true);
+                    }
+            }
+        }
+    }
+    free(boards);
+    free(a);
+    free(b);
+    return false;
+    //   PG_RETURN_BOOL(false);
+
+}
+
+// Datum chessboard_contained(PG_FUNCTIONS_ARGS) //left arg contained in right arg
+static bool chessboard_contained(ChessBoard *a, ChessGame *b)
+
+{
+//   ChessBoard *a = chessboard_make(PG_GETARG_ChessBoard_P(0));
+//   ChessGame *b = chessgame_make(PG_GETARG_ChessGame_P(1));
+
+  char **boards = chessgame_generate_boards(b);
+
+  for(int i = 0; i<(SCL_recordLength(b->record)+1);i++){
+    char *target = strtok(boards[i]," ");
+    char *query = strtok(a->fen, " ");
+    if(strcmp(target, query) == 0){
+    //   PG_RETURN_BOOL(true);
+    return true;
+    }
+  }
+    return false;
+//   PG_RETURN_BOOL(false);
+}
+
+static void testkikoo(char *fen){
+    ChessBoard *a = chessboard_make(fen);
+    printf("fen: %s\n", a->fen);
+}
+
+
 
 int main ()
 {
@@ -239,5 +356,19 @@ int main ()
     //test_hasOpening();
     //test_getBoard();
     test_hasBoard();
+
+    // chessgame_extractValue(chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3"));
+    // chessgame_extractQuery(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"));
+
+    // if(chessboard_overlap(chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3"),
+    //                      chessboard_make("3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 25"))){printf("TRUE\n");}
+    //                      else{printf("FALSE\n");}
+
+    // char *target = strtok("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R", " ");
+    // printf("target: %s\n", target);
+    // if(chessboard_contained(chessboard_make("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"),
+    //                         chessgame_make("1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6"))){printf("TRUE\n");}
+    //                         else{printf("FALSE\n");}
+    testkikoo("rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R");
     return 0;
 }
