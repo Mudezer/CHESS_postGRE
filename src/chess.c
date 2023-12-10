@@ -84,7 +84,7 @@ bool isGameLegal(const char * pgn){
   int counter = 0;
   int incr = 0;
   char* tok = strtok(gamePGN, " .");
-  if(strcmp(tok,"1")) gameIsLegal = false;
+  if(!(strcmp(tok,"1")||strcmp(tok,"1-0")||strcmp(tok,"0-1"))) gameIsLegal = false;
   tok = strtok(NULL, " .");
   while(tok != NULL) {
       if(incr == 2){
