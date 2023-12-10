@@ -32,7 +32,7 @@ static ChessGame * chessgame_make(const char * pgn)
     return c;
 }
 
-static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
+static ChessBoard * chessboard_make(const char * fen)
 {
     elog(LOG, "chessboard_make\n");
     ChessBoard *c = palloc0(sizeof(ChessBoard)); 
@@ -46,7 +46,7 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
  * Parser & verification of errors
  *****************************************************************************/
 
-bool isBoardLegal(const char fen[MAX_FEN_LENGTH]){
+bool isBoardLegal(const char * fen){
     bool boardIsLegal = true;
     char a[100],b[2],c[20],d[20];
     int e,f;
@@ -121,7 +121,7 @@ static ChessGame * chessgame_parse(const char * pgn)
  * @param n the number of moves to print
  * @returns ChessGame truncated to the n first moves
 */
-static ChessGame * getFirstMoves(ChessGame * chessgame, int n) //TODO: case no space after point
+static ChessGame * getFirstMoves(ChessGame * chessgame, int n)
 {
     char * gamePGN = chessgame->pgn;
     char gamePGN_copy[MAX_PGN_LENGTH]; strcpy(gamePGN_copy, gamePGN);
@@ -140,7 +140,6 @@ static ChessGame * getFirstMoves(ChessGame * chessgame, int n) //TODO: case no s
             counter++;
             incr++;
             }
-        
         tok = strtok(NULL, " ");
     }
     return chessgame_make(openingPGN);
@@ -189,7 +188,6 @@ static bool hasOpening(ChessGame* chessgame, ChessGame* openingGame)
 */
 static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNumber)
 {
-    char * gamePGN = chessgame->pgn;
     char* board_FEN = chessboard->fen;
     int counter = 0;
     bool isSame = false;
@@ -202,7 +200,7 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
     board_tofindStr[64] = '\0'; // Add the null terminator
 
     // Boards of the game
-    char* firstMoves = getFirstMoves(gamePGN, moveNumber);
+    char* firstMoves = getFirstMoves(chessgame, moveNumber)->pgn;
     SCL_Record *record = palloc0(sizeof(SCL_Record));
     SCL_recordFromPGN(*record, firstMoves);
     SCL_Board *board = palloc0(sizeof(SCL_Board));
@@ -364,12 +362,12 @@ Datum chessgame_cmp(PG_FUNCTION_ARGS)
 PG_FUNCTION_INFO_V1(chessboard_contains);
 Datum chessboard_contains(PG_FUNCTION_ARGS)
 {
-  ChessGame *value = chessgame_make(PG_GETARG_ChessGame_P(0));
-  ChessBoard *template = chessboard_make(PG_GETARG_ChessBoard_P(1));
-  int moveNumber = palloc0(sizeof(int));
-  moveNumber = SCL_recordLength(value->record)+1;
+  ChessGame *value = chessgame_make(PG_GETARG_POINTER(0));
+  ChessBoard *template = chessboard_make(PG_GETARG_POINTER(1));
+  int *moveNumber = palloc0(sizeof(int));
+  *moveNumber = SCL_recordLength(value->record)+1;
 
-  bool result = hasBoard(value, template , moveNumber);
+  bool result = hasBoard(value, template , *moveNumber);
   PG_RETURN_BOOL(result);
 
 }
@@ -414,7 +412,7 @@ Datum chessboard_eq(PG_FUNCTION_ARGS)
   ChessBoard *value = PG_GETARG_ChessBoard_P(0);
   ChessBoard *query = PG_GETARG_ChessBoard_P(1);
 
-  PG_RETURN_BOOL(strcmp(value, query) == 0);
+  PG_RETURN_BOOL(strcmp(value->fen, query->fen) == 0);
 }
 
 /*****************************************************************************
@@ -426,22 +424,14 @@ Datum chessboard_cmp(PG_FUNCTION_ARGS)
 {
   ChessBoard *value = PG_GETARG_ChessBoard_P(0);
   ChessBoard *query = PG_GETARG_ChessBoard_P(1);
-  if(strcmp(value, query) ==0){
-    PG_RETURN_INT32(0);
-  }
-  else if(strcmp(value, query) < 0){
-    PG_RETURN_INT32(-1);
-  }
-  else{
-    PG_RETURN_INT32(1);
-    
-  }
+
+  PG_RETURN_INT32(strcmp(value->fen, query->fen));
 }
 
 PG_FUNCTION_INFO_V1(chessboard_extractValue);
 Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 {
-  ChessGame *a = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessGame *a = chessgame_make(PG_GETARG_POINTER(0));
 
   //number of keys (number of boards in the game)
   int32 *nkeys = (int32*) PG_GETARG_POINTER(1); 
@@ -458,7 +448,7 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
 
   for(int i =1; i <= len; i++){
     SCL_recordApply(a->record, *tempBoard, i);
-    SCL_boardToFEN(tempBoard, tempFen);
+    SCL_boardToFEN((char *) tempBoard, tempFen);
     char *tempState = strtok(tempFen, " ");
     ChessBoard *temp = chessboard_make(tempState);
     entries[i] = PointerGetDatum(temp);
@@ -473,12 +463,9 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
 {
   int32 *nentries = (int32 *) PG_GETARG_POINTER(1);
 	uint16 strategy = PG_GETARG_UINT16(2);
-	int32	   *searchMode = (int32 *) PG_GETARG_POINTER(6);
 	Datum	   *entries;
 
   if(strategy == 1){ // right arg(query) overlaps left arg(index)
-    ChessGame *a = PG_GETARG_ChessGame_P(0);
-    // entries = chessboard_extractValue(a, &nentries);
     entries = (Datum *) DatumGetPointer(DirectFunctionCall2(chessboard_extractValue, PG_GETARG_DATUM(0), PointerGetDatum(nentries)));
     if(entries == NULL){
       elog(ERROR, "entries is NULL | strategy 3\n");
@@ -494,8 +481,6 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
     *nentries = 1;
   }
   else if(strategy == 3){ // left arg(index) is contained by right arg(query)
-    ChessGame *a = PG_GETARG_ChessGame_P(0);
-    // entries = chessboard_extractValue(a, &nentries);
     entries = (Datum *) DatumGetPointer(DirectFunctionCall2(chessboard_extractValue, PG_GETARG_DATUM(0), PointerGetDatum(nentries)));
     if(entries == NULL){
       elog(LOG, "entries is NULL | strategy 3\n");
@@ -579,17 +564,17 @@ Datum getBoards(PG_FUNCTION_ARGS)
 {
   ChessGame *a = PG_GETARG_ChessGame_P(0);
   int n = PG_GETARG_INT32(1);
+  SCL_Board *tempBoard = palloc0(sizeof(SCL_Board));
 
   //array of boards in Datum format (convenenient for postgres)
   Datum *entries = palloc0(sizeof(Datum) * n+1); 
-  entries[0] = PointerGetDatum(chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
-  SCL_Board *tempBoard = palloc0(sizeof(SCL_Board));
   char tempFen[SCL_FEN_MAX_LENGTH];
+  entries[0] = PointerGetDatum(chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
 
   for(int i = 1; i <= n; i++){
     SCL_recordApply(a->record, *tempBoard, i);
-    SCL_boardToFEN(tempBoard, tempFen);
-    char *tempState = strtok(tempFen, " ");
+    SCL_boardToFEN((char *) tempBoard, tempFen);
+    char *tempState = (char*) strtok(tempFen, " ");
     ChessBoard *temp = chessboard_make(tempState);
     entries[i] = PointerGetDatum(temp);
   }

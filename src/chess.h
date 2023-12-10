@@ -8,12 +8,6 @@
 #define MAX_PGN_LENGTH 200 * MAX_MOVE_LENGTH
 #define MAX_MOVE_LENGTH 7
 
-#define PG_GETARG_ChessBoard_P(n)  ((ChessBoard *) DatumGetPointer(PG_GETARG_DATUM(n)))
-#define PG_RETURN_ChessBoard_P(x) return PointerGetDatum(ChessBoardPGetDatum(x))
-
-/* fmgr macros chessboard type */
-
-
 #define PG_GETARG_ChessBoard_P(n) ((ChessBoard *) DatumGetPointer(PG_GETARG_DATUM(n)))
 #define PG_RETURN_ChessBoard_P(x) return PointerGetDatum(x)
 

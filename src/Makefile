@@ -1,11 +1,8 @@
-MODULE_big	= chess
-OBJS = \
-	$(WIN32RES) \
-	chess.o
-
 EXTENSION   = chess
-DATA        = chess--0.1.sql
-HEADERS_chess = chess.h
+MODULES 	= chess
+DATA        = chess--0.1.sql chess.control
+
+LDFLAGS=-lrt
 
 PG_CONFIG ?= pg_config
 PGXS = $(shell $(PG_CONFIG) --pgxs)
