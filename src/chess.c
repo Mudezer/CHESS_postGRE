@@ -44,6 +44,24 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
  * Parser & verification of errors TODO
  *****************************************************************************/
 
+bool isBoardLegal(const char fen[MAX_FEN_LENGTH]){
+    bool boardIsLegal = true;
+    char a[100],b[2],c[20],d[20];
+    int e,f;
+    char g[2];
+    boardIsLegal = sscanf(fen, "%s %s %s %s %d %d", a, b, c, d, &e, &f) == 6;//Vérifie que le FEN n’est pas trop court et respecte le format requis
+    int counter = 0;
+    char* tok;
+    tok = strtok(a, "/");
+    while(tok != NULL) {
+      tok = strtok(NULL, "/");
+      counter++;
+    }
+    if (counter != 8) boardIsLegal = false; //Vérifie que le board soit bien 8 chaines de caractères séparé par 7 "/"
+    if(sscanf(fen, "%s %s %s %s %d %d %s", a, b, c, d, &e, &f,g) == 7) boardIsLegal = false; //Vérifie que le FEN ne soit pas trop lon
+    return boardIsLegal;
+}
+
 /**
  * Parse an input that has a FEN format to create a ChessBoard struct
  * @param fen : the FEN format input
@@ -51,15 +69,35 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 */
 static ChessBoard * chessboard_parse(const char fen[MAX_FEN_LENGTH])
 {
-  /* // Test if the make is well done ?
-  char * a, b, c, d, e, f;
-  if (sscanf(fen, "%s %s %s %s %s %s", &a, &b, &c, &d, &e, &f) != 6)
-    ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-      errmsg("invalid input syntax for type %s: \"%s\"", "complex", str)));
-    */
-  return chessboard_make(fen);
+  if (!isBoardLegal(fen)) ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("invalid input syntax for a chess board")));
+  else return chessboard_make(fen);
 }
 
+bool isGameLegal(const char * pgn){
+  char gamePGN[MAX_PGN_LENGTH];
+  strcpy(gamePGN,pgn);
+  bool gameIsLegal = true;
+  int counter = 0;
+  int incr = 0;
+  char* tok = strtok(gamePGN, " .");
+  if(strcmp(tok,"1")) gameIsLegal = false;
+  tok = strtok(NULL, " .");
+  while(tok != NULL) {
+      if(incr == 2){
+        int tokInt = atoi(tok);
+        if(tokInt != counter/2+1){
+          if(strlen(tok)!=3) gameIsLegal = false;
+        } 
+        incr = 0;
+      } else {
+        if(strlen(tok)>7) gameIsLegal = false;
+        counter++;
+        incr++;
+      }
+    tok = strtok(NULL, " .");
+  }
+  return gameIsLegal;
+}
 
 /**
  * Parse an input that has a PGN format to create a ChessGame struct
@@ -68,13 +106,8 @@ static ChessBoard * chessboard_parse(const char fen[MAX_FEN_LENGTH])
 */
 static ChessGame * chessgame_parse(const char * pgn)
 {
-  /* // Test if the make is well done ?
-  char * a;
-  if (sscanf(fen, "%s", &a) != 1)
-    ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
-      errmsg("invalid input syntax for type %s: \"%s\"", "complex", str)));
-    */
-  return chessgame_make(pgn);
+ if (!isGameLegal(pgn)) ereport(ERROR,(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),errmsg("invalid input syntax for a chess game")));
+  else return chessgame_make(pgn);
 }
 
 
