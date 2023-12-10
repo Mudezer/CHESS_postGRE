@@ -82,13 +82,13 @@ bool isGameLegal(const char * pgn){
   int counter = 0;
   int incr = 0;
   char* tok = strtok(gamePGN, " .");
-  if(strcmp(tok,"1")) gameIsLegal = false;
+  if(!(strcmp(tok,"1")||strcmp(tok,"1-0")||strcmp(tok,"0-1"))) gameIsLegal = false;
   tok = strtok(NULL, " .");
   while(tok != NULL) {
       if(incr == 2){
         int tokInt = atoi(tok);
-        if(tokInt != counter/2+1){
-          if(strlen(tok)!=3) gameIsLegal = false;
+        if(tokInt != counter/2+1){ //teste que le numéro matche bien le nombre du move 
+          if(!(strcmp(tok,"1/2-1/2")||strcmp(tok,"1-0")||strcmp(tok,"0-1"))) gameIsLegal = false; //teste que  tok ="1-0" ou "0-1" ou égalité
         } 
         incr = 0;
       } else {
