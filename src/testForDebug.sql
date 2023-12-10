@@ -40,57 +40,41 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. d4 d5 2.c4 dxc4 3.e3 e5 4.Bxc4 exd4 5.exd4 Nf6 6.Nc3 Be7 7.Nf3 O-O 8.Be3 c6 9.h3 Nbd7 10.Bb3 Nb6 11.O-O Nfd5 12.a4 a5 13.Ne5 Be6 14.Bc2 f5 15.Qe2 f4 16.Bd2 Qe8 17.Rae1 Bf7 18.Qe4 g6 19.Bxf4 Nxf4 20.Qxf4 Bc4 21.Qh6 Bxf1 22.Bxg6 hxg6 23.Nxg6 Nc8 24.Qh8+ Kf7 25.Qh7+ Kf6 26.Nf4 Bd3 27.Re6+ Kg5 28.Qh6+ Kf5 29.g4+  1-0'),
     ('1. e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 g5 5.Nc3 Bg7 6.d4 Nc6 7.e5 Nge7 8.Nf3 Qh5 9.Ne4 h6 10.Nf6+ Bxf6 11.exf6 d5 12.Bd3 Nf5 13.Qe1+ Kd8 14.Ne5 Nfxd4 15.c3 Nxe5 16.Qxe5 Nc6 17.Qxd5+ Ke8 18.Bb5 Be6 19.Bxc6+ Kf8 20.Qc5+ Kg8 21.Bf3 Qg6 22.Qd4 c5 23.Qe5 Re8 24.Be2 f3 25.Kf2 fxe2 26.Be3 b6 27.h4 Bd7 28.Qd5 Qxf6+ 29.Kxe2 Bg4+ 30.Kd2 Rd8  0-1'),
     ('1. e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 d6 5.d4 Bg4 6.Qd3 Nc6 7.Bxf7+ Kxf7 8.Qb3+ Kg6 9.Qxb7 Nxd4 10.Qxa8 Nf6 11.Na3 f3 12.g3 Bh3+ 13.Ke1 Qg4 14.Be3 d5 15.Qxa7 Nc6 16.Qxc7 d4 17.Bd2 Qxe4+ 18.Kd1 f2 19.Nxh3 Qf3+ 20.Kc1 Qxh1+  0-1'),     
-    --  ligne suivant premier select
-    ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3'),
-    -- ligne suivante second select
     ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3')
     ;
 
 
-select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 3); -- 1. e4
-select hasOpening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1));
+-- explain analyse
+-- select count(*)
+-- from chessgame_table
+-- where hasOpening(p_chessgame, '1. e4 c5');
 
--- explain analyze
-SELECT count(*)
-FROM chessgame_table
-WHERE hasOpening(p_chessgame,'1. e4');
+-- create index btree on chessgame_table USING BTREE (p_chessgame);
 
-
-
--- select has_opening('1. e4 c5 2. Nf3 d6 3. d4 cxd4', getFirstMoves('1. e4 e5 2. Bc4 Nf6', 1));
-
--- select * from chessgame_table;
-
--- create index chessgame_btree on chessgame_table USING btree (p_chessgame btree_chessgame_ops);
-create index chessboard_gin on chessgame_table USING gin (p_chessgame gin_chessboard_ops);
-
-explain analyse
-SELECT count(*)
-FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 -- explain analyse
--- SELECT *
--- FROM chessgame_table
--- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+-- select count(*)
+-- from chessgame_table
+-- where hasOpening(p_chessgame, '1. e4 c5');
 
-set enable_seqscan TO OFF;
-
-explain analyse
-SELECT count(*)
-FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+-- set enable_seqscan = off;
 
 -- explain analyse
--- SELECT *
--- FROM chessgame_table
--- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+-- select count(*)
+-- from chessgame_table
+-- where hasOpening(p_chessgame, '1. e4 c5');
 
--- vacuum analyze;
+-- set jit = off;
 
--- select * from chessgame_table where hasBoard(p_chessgame, '3r1r1k/pq3Ppp/3p1R2/8/b2Bn1Q1/PBp5/1PP3PP/1K1R4 b - - 0 23',46);
--- select * from chessgame_table where hasBoard(p_chessgame, '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 45);
+explain analyse
+select count(*)
+from chessgame_table
+where hasBoard(p_chessgame, 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2',3);
 
+create index gin on chessgame_table USING GIN (p_chessgame);
+set enable_seqscan = off;
 
--- select count(*) from chessgame_table where has_board(p_chessgame, '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 46);
--- select count(*) from chessgame_table where has_board(p_chessgame, '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 45); 
+explain analyse
+select count(*)
+from chessgame_table
+where hasBoard(p_chessgame, 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2',3);

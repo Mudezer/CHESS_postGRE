@@ -37,7 +37,7 @@ COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  internallength = 256, -- peut etre 512
+  internallength = 1024, -- peut etre 512
   input          = chessgame_in,
   output         = chessgame_out
 );
@@ -70,16 +70,6 @@ CREATE OR REPLACE FUNCTION hasBoard(chessgame, chessboard, int)
   RETURNS boolean
   AS 'MODULE_PATHNAME', 'hasBoard2'
   LANGUAGE C IMMUTABLE STRICT PARALLEL SAFE;
-
--- CREATE OR REPLACE FUNCTION has_opening(game1 chessgame, game2 chessgame)
--- RETURNS BOOLEAN
--- AS 'SELECT getFirstMoves(game1, gameLength(game2)) = game2'
--- LANGUAGE SQL IMMUTABLE STRICT;
-
-CREATE OR REPLACE FUNCTION has_board(game chessgame, board chessboard, value INT)
-RETURNS BOOLEAN
-AS 'SELECT getFirstMoves(game, value) @> board'
-LANGUAGE SQL IMMUTABLE STRICT;
 
 /******************************************************************************
  * B-Tree Operators

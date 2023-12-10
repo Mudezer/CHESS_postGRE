@@ -5,7 +5,6 @@
 DROP EXTENSION IF EXISTS chess CASCADE;
 DROP TABLE IF EXISTS favorite_game;
 DROP TABLE IF EXISTS chessgame_table;
-DROP TABLE IF EXISTS chessboard_table;
 
 set enable_seqscan=true;
 
@@ -4236,7 +4235,7 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Bc5 5. Nxc6 bxc6 6. Bd3 d6 7. O-O Nf6 8. Nc3 Ng4 9. Qf3 Qh4 10. Qg3 Qxg3 11. hxg3 a5 12. Be2 h5 13. Na4 Bd4 14. Bxg4 hxg4 15. Re1 Ba6 16. Be3 Be5 17. Bf4 f6 18. f3 gxf3 19. gxf3 Ke7 20. Bxe5 fxe5 21. Kg2 g5 22. g4 Bc4 23. Rh1 Be6 24. b3 c5 25. Nc3 c6 26. Rad1 Rad8 27. Na4 c4 28. Nb2 cxb3 29. axb3 d5 30. Rxh8 Rxh8 31. Re1 Kd6 32. Nd3 d4 33. Ra1 Ra8 34. Nb2 c5 35. Kf2 Kc6 36. Rh1 c4 37. Rh6 Kd7 38. Na4 cxb3 39. cxb3 Ke7 40. Nc5 Bf7 41. Rb6 Rc8 42. Rb5 Rd8 43. Nd3 a4 44. bxa4 Bc4 45. Rb7+ Kd6 46. Nb2 Ba2 47. a5 Ra8 48. Rb5 Bb1 49. Nc4+ 1-0'),
     ('1. e4 c5 2. Nf3 d6 3. Bb5+ Nd7 4. O-O Nf6 5. Re1 a6 6. Bf1 b6 7. c4 Bb7 8. Nc3 e6 9. d4 cxd4 10. Nxd4 Be7 11. b3 O-O 12. Bb2 Qc7 13. Rc1 Rac8 14. Re3 Qb8 15. Rg3 Rfe8 16. Nd5 exd5 17. Nf5 g6 18. Nh6+ Kg7 19. Nf5+ Kf8 20. Qd2 Kg8 21. Nh6+ Kg7 22. Nf5+ Kh8 23. Qg5 d4 24. Bxd4 Rc5 25. Qh6 Bf8 26. Qh4 Rce5 27. Nh6 Bxh6 28. Qxh6 Kg8 29. Bxe5 dxe5 30. Rd1 Nc5 31. Rh3 Rd8 32. Re1 Ne6 33. c5 Nf4 34. Rf3 bxc5 35. Bc4 Bxe4 36. Rg3 Qd6 37. h3 Qd2 38. Rge3 N6d5 39. Bxd5 Nxd5 40. Qh4 Nxe3 41. Rxe3 Bf5 42. Rxe5 Qd1+ 43. Kh2 Qd6 44. Qg3 f6 45. Re8+ Kf7 46. Rxd8 Qxd8 47. Qc3 Qd4 48. Qa5 Qxf2 49. Qxa6 Qf4+ 50. Kg1 Qe3+ 51. Kh2 Qe7 52. Qc6 Be6 53. Qe4 Qd6+ 54. Kg1 Qd1+ 55. Kh2 Qd6+ 56. Kh1 Qd4 57. Qb7+ Qd7 58. Qf3 Bd5 59. Qg3 Qc6 60. Kh2 f5 61. Qf2 Kf6 62. g3 Qe6 63. Qf3 Qe5 64. Qf2 Qe4 65. Kg1 Qh1# 0-1'),
     ('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Nd7 12. d5 Bf6 13. Nbd2 g6 14. b4 Nb7 15. a4 cxb4 16. cxb4 bxa4 17. Bxa4 a5 18. Bc6 Rb8 19. b5 Nb6 20. Ba3 a4 21. Qc2 Be7 22. Nc4 Nxc4 23. Qxc4 Qb6 24. Nxe5 Bf6 25. Nf3 Bxa1 26. Rxa1 Nc5 27. Bxc5 Qxc5 28. Qxc5 dxc5 29. Rxa4 Bb7 30. Ne5 Ra8 31. Rxa8 Bxa8 32. Kf1 f5 33. Nd7 Rd8 34. Nb6 Bb7 35. Bxb7 Rb8 36. Bc6 Rxb6 37. e5 Kf7 38. Ke2 Rb8 39. Kd3 1-0'),
-    ('1. e4 c5 2. Nf3 d6 3. Bb5+ Nd7 4. O-O a6 5. Bd3 Ngf6 6. Re1 e6 7. c3 b5 8. Bc2 c4 9. a4 Bb7 10. axb5 axb5 11. Rxa8 Qxa8 12. Na3 Be7 13. Nxb5 O-O 14. Qe2 Rc8 15. Na3 d5 16. exd5 Bxd5 17. d4 cxd3 18. Qxd3 h6 19. b4 Be4 20. Qe3 Bxc2 21. Nxc2 Nd5 22. Qd2 Rxc3 23. Bb2 Rc8 24. Nfd4 Qa2 25. Bc1 Bg5 26. Ne3 Qa4 27. b5 Nc5 28. Nc6 Qxb5 29. Nd4 Qa4 30. Bb2 Ne4 31. Qd3 Bxe3 32. Qxe4 Qb4 33. Qb1 Bxd4 0-'),
+    ('1. e4 c5 2. Nf3 d6 3. Bb5+ Nd7 4. O-O a6 5. Bd3 Ngf6 6. Re1 e6 7. c3 b5 8. Bc2 c4 9. a4 Bb7 10. axb5 axb5 11. Rxa8 Qxa8 12. Na3 Be7 13. Nxb5 O-O 14. Qe2 Rc8 15. Na3 d5 16. exd5 Bxd5 17. d4 cxd3 18. Qxd3 h6 19. b4 Be4 20. Qe3 Bxc2 21. Nxc2 Nd5 22. Qd2 Rxc3 23. Bb2 Rc8 24. Nfd4 Qa2 25. Bc1 Bg5 26. Ne3 Qa4 27. b5 Nc5 28. Nc6 Qxb5 29. Nd4 Qa4 30. Bb2 Ne4 31. Qd3 Bxe3 32. Qxe4 Qb4 33. Qb1 Bxd4 0-')
     -- ligne suivant premier select
     -- ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3'),
     -- -- ligne suivante second select
@@ -4251,37 +4250,39 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
 -- explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
 
 
-
 -- explain analyse
--- SELECT *
+-- SELECT count(*)
 -- FROM chessgame_table
--- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+-- WHERE p_chessgame @> 'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2';
 
--- explain analyse
-SELECT count(*)
-FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+explain analyse
+select count(*)
+from chessgame_table
+where hasOpening(p_chessgame, '1. e4 e6 2. d4 d5 3. Nd2');
 
-create index gin on chessgame_table USING GIN (p_chessgame);
+create index btree on chessgame_table USING BTREE (p_chessgame);
+-- create index gin on chessgame_table USING GIN (p_chessgame);
 
--- explain analyse
-SELECT count(*)
-FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+explain analyse
+select count(*)
+from chessgame_table
+where hasOpening(p_chessgame, '1. e4 e6 2. d4 d5 3. Nd2');
 
-set enable_seqscan TO OFF;
+set enable_seqscan = off;
+
+explain analyse
+select count(*)
+from chessgame_table
+where hasOpening(p_chessgame, '1. e4 e6 2. d4 d5 3. Nd2');
+
+-- set enable_seqscan TO OFF;
 
 -- explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
 
 -- explain analyse
-SELECT count(*)
-FROM chessgame_table
-WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
--- explain analyse
--- SELECT *
+-- SELECT count(*)
 -- FROM chessgame_table
--- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+-- WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 -- explain analyse
 -- SELECT *
