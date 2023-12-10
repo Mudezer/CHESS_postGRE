@@ -13,11 +13,9 @@
 #include <stdbool.h>
 #include "utils/elog.h"
 #include "utils/memutils.h"
-// #include "postgres/src/backend/access/gin/ginarrayproc.c"
 
 #include "utils/builtins.h"
 #include "libpq/pqformat.h"
-// #include "utils/elog.h" // see if needed
 #include "chess.h"
 
 PG_MODULE_MAGIC;
@@ -45,7 +43,7 @@ static ChessBoard * chessboard_make(const char fen[MAX_FEN_LENGTH])
 }
 
 /*****************************************************************************
- * Parser & verification of errors TODO
+ * Parser & verification of errors
  *****************************************************************************/
 
 bool isBoardLegal(const char fen[MAX_FEN_LENGTH]){
@@ -154,16 +152,14 @@ Datum chessboard_in(PG_FUNCTION_ARGS)
 {
   char *fen = PG_GETARG_CSTRING(0); // String input from the SQL
   PG_RETURN_ChessBoard_P(chessboard_parse(fen)); // Send the pointer to the C struct
-  // à noter que le coté SQL s'en fout du type de pointeur qu'on renvoie du moment qu'on lui indique que c'est un pointeur
+
 }
 
 PG_FUNCTION_INFO_V1(chessboard_out);
 Datum chessboard_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
-  ChessBoard *c = chessboard_make(PG_GETARG_ChessBoard_P(0)); // Pointer to the SQL datatype & cast it in struct C
-  char *fen = chessboard_to_str(c); // To only have the FEN 
-  //PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_CSTRING(fen);
+  ChessBoard *c = PG_GETARG_ChessBoard_P(0); // Pointer to the SQL datatype & cast it in struct C
+  PG_RETURN_CSTRING(c->fen);
 }
 
 PG_FUNCTION_INFO_V1(chessgame_in); // Declare the function
@@ -171,16 +167,13 @@ Datum chessgame_in(PG_FUNCTION_ARGS)
 {
   char *pgn = PG_GETARG_CSTRING(0); // String input from the SQL
   PG_RETURN_ChessGame_P(chessgame_parse(pgn)); // Send the pointer to the C struct
-  // à noter que le coté SQL s'en fout du type de pointeur qu'on renvoie du moment qu'on lui indique que c'est un pointeur
 }
 
 PG_FUNCTION_INFO_V1(chessgame_out);
 Datum chessgame_out(PG_FUNCTION_ARGS) // Datum to declare a generic data type
 {
-  ChessGame *c = chessgame_make(PG_GETARG_ChessGame_P(0)); // Pointer to the SQL datatype & cast it in struct C
-  char *pgn = chessgame_to_str(c); // To only have the PGN 
-  //PG_FREE_IF_COPY(c, 0);
-  PG_RETURN_CSTRING(pgn);
+  ChessGame *c = PG_GETARG_ChessGame_P(0); // Pointer to the SQL datatype & cast it in struct C
+  PG_RETURN_CSTRING(c->pgn);
 }
 
 /*****************************************************************************
@@ -221,7 +214,7 @@ static ChessGame * getFirstMoves(ChessGame * chessgame, int n) //TODO: case no s
 PG_FUNCTION_INFO_V1(getFirstMoves2);
 Datum getFirstMoves2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
   int32 n = PG_GETARG_INT32(1);
   ChessGame *result = getFirstMoves(cgame, n);
   //PG_FREE_IF_COPY(cgame, 0);
@@ -246,8 +239,8 @@ static bool hasOpening(ChessGame* chessgame, ChessGame* openingGame)
 PG_FUNCTION_INFO_V1(hasOpening2);
 Datum hasOpening2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
-  ChessGame *dgame = chessgame_make(PG_GETARG_ChessGame_P(1));
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  ChessGame *dgame = PG_GETARG_ChessGame_P(1);
   bool result = hasOpening(cgame, dgame);
   //PG_FREE_IF_COPY(cgame, 0);
   //PG_FREE_IF_COPY(dgame, 1);
@@ -301,8 +294,8 @@ static bool hasBoard(ChessGame* chessgame, ChessBoard * chessboard , int moveNum
 PG_FUNCTION_INFO_V1(hasBoard2);
 Datum hasBoard2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
-  ChessBoard * cboard = chessboard_make(PG_GETARG_ChessBoard_P(1));
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
+  ChessBoard * cboard = PG_GETARG_ChessBoard_P(1);
   int32 n = PG_GETARG_INT32(2);
   bool result = hasBoard(cgame, cboard, n);
   //PG_FREE_IF_COPY(cgame, 0);
@@ -337,7 +330,7 @@ static ChessBoard * getBoard(ChessGame* chessgame, int moveNumber)
 PG_FUNCTION_INFO_V1(getBoard2);
 Datum getBoard2(PG_FUNCTION_ARGS)
 {
-  ChessGame *cgame = chessgame_make(PG_GETARG_ChessGame_P(0));
+  ChessGame *cgame = PG_GETARG_ChessGame_P(0);
   int32 n = PG_GETARG_INT32(1);
   ChessBoard *result = getBoard(cgame, n);
   //PG_FREE_IF_COPY(cgame, 0);
@@ -496,17 +489,14 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
   ChessGame *a = PG_GETARG_ChessGame_P(0);
    //inputValue (data from dB)
   int32 *nkeys = (int32*) PG_GETARG_POINTER(1); //number of keys (number of boards in the game)
-  // bool **nullFlags = (bool**) PG_GETARG_POINTER(2); //null flags
   int len = SCL_recordLength(a->record)+1; //length of the game +1 (for the initial board)
   *nkeys = (int32) len; //number of boards in the game
   
 
 
   Datum *entries = palloc(sizeof(Datum) * len); //array of boards in Datum format (convenenient for postgres)
-  // je sais pas si il faut mettre ça "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" ou pas => faut essayer pour savoir
   entries[0] = PointerGetDatum(chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")); //initial board
   // entries[0] = (Datum) chessboard_make("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-  elog(LOG, "chessboard_extractValue2\n");
   SCL_Board *tempBoard = palloc0(sizeof(SCL_Board));
   char tempFen[SCL_FEN_MAX_LENGTH];
 
@@ -520,12 +510,10 @@ Datum chessboard_extractValue(PG_FUNCTION_ARGS)
   }
   
   pfree(tempBoard);
-  elog(LOG, "chessboard_extractValue3\n");
   PG_RETURN_POINTER(entries);
 
 }
 
-// Datum *extractQuery(Datum query, int32 *nkeys, StrategyNumber n, bool **pmatch, Pointer **extra_data, bool **nullFlags, int32 *searchMode)
 
 PG_FUNCTION_INFO_V1(chessboard_extractQuery);
 Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
@@ -552,7 +540,7 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
   }
   else if(strategy ==2){ // left arg(index) contains right arg(query)
     ChessBoard *a = PG_GETARG_ChessBoard_P(0);
-    char *tempBoard = chessboard_to_str(a);
+    char *tempBoard = a->fen;
     char *tempState = strtok(tempBoard, " ");
     ChessBoard *query = chessboard_make(tempState);
     entries = palloc0(sizeof(Datum) * *nentries);
@@ -572,7 +560,7 @@ Datum chessboard_extractQuery(PG_FUNCTION_ARGS)
   }
   else if(strategy == 4){ // left arg(index) equals right arg(query)
     ChessBoard *a = PG_GETARG_ChessBoard_P(0);
-    char *tempBoard = chessboard_to_str(a);
+    char *tempBoard = a->fen;
     char *tempState = strtok(tempBoard, " ");
     ChessBoard *query = chessboard_make(tempState);
     entries = palloc0(sizeof(Datum) * *nentries);

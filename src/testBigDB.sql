@@ -2348,7 +2348,6 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 e6 2. d4 d5 3. Nc3 Nf6 4. e5 Nfd7 5. f4 c5 6. Nf3 Nc6 7. Be3 a6 8. Qd2 b5 9. Bd3 Qb6 10. Qf2 Bb7 11. O-O g6 12. Kh1 Rc8 13. a3 cxd4 14. Nxd4 Nxd4 15. Bxd4 Bc5 16. Ne2 Bxd4 17. Nxd4 Nc5 18. Rad1 O-O 19. Qh4 Ne4 20. c3 a5 21. Bxb5 Ba6 22. a4 Bxb5 23. axb5 a4 24. Rd3 a3 25. Rh3 h5 26. bxa3 Rxc3 27. Rxc3 Nxc3 28. f5 Ne4 29. Nc6 Qxb5 30. Ne7+ Kh7 31. Qf4 exf5 32. Nxf5 gxf5 33. Qxf5+ Kg7 34. e6 f6 35. Rc1 Rc8 36. Rg1 Qd3 37. Qf3 Qd4 38. Rf1 Qe5 39. Qe3 Qxe6 40. a4 Ra8 41. Qd4 Qe5 42. Qb4 Rb8 43. Qe1 Rb2 44. Qe3 Nf2+ 0-1'),
     ('1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Qe7 5. O-O Nf6 6. d3 a6 7. a4 d6 8. b4 Ba7 9. Bb3 h6 10. Re1 Be6 11. Be3 Bxe3 12. fxe3 Bxb3 13. Qxb3 Qe6 14. Qxe6+ fxe6 15. Nbd2 a5 16. b5 Nb8 17. c4 Nbd7 18. d4 Ke7 19. Rac1 Rhd8 20. c5 dxc5 21. dxc5 b6 22. c6 Nc5 23. Nc4 Nd3 24. Ncxe5 Nxc1 25. Rxc1 Nxe4 26. Nd4 Rd5 27. Nef3 Rad8 28. h3 Rc5 29. Rf1 g5 30. Kh2 Rf8 31. Re1 h5 32. Ng1 e5 33. Ndf3 g4 34. hxg4 hxg4 35. Nh4 Rh8 36. g3 Rc2+ 37. Ne2 Ke6 0-1'),
     ('1. a3 d5 2. f4 Nc6 3. d4 Bf5 4. e3 Nf6 5. c4 e6 6. Nc3 a6 7. Nf3 Ne4 8. Bd3 Be7 9. O-O Qd7 10. cxd5 exd5 11. Ne5 Nxe5 12. fxe5 Bg6 13. Nxe4 Bxe4 14. Bxe4 dxe4 15. Qc2 c5 16. Qxe4 Rd8 17. Rd1 O-O 18. d5 Rfe8 19. Qf4 g5 20. Qg3 Qa4 21. Qf3 g4 22. b3 gxf3 23. bxa4 fxg2 24. Ra2 Kh8 25. Rxg2 Bf8 26. Bb2 Bg7 27. Rg5 h6 28. Rf5 Kg8 29. Kf2 Re7 30. Rg1 Kf8 31. d6 Re6 32. Kf3 b5 33. a5 Rb8 34. Ke4 b4 35. Rgf1 Rb7 36. Kd5 bxa3 37. Bxa3 Ke8 38. Bxc5 Rb5 39. Kc6 Bxe5 40. Rxe5 Rxe5 41. d7+ Kd8 42. Bb6+ Rxb6+ 43. axb6 Re6+ 44. Kb7 Kxd7 45. Ka7 Re7 46. b7 Kc6 47. Rf6+ Kb5 48. Rxa6 1-0'),
-    ('0-1'),
     ('1. d4 Nf6 2. Nf3 g6 3. Nc3 d5 4. Bf4 Bg7 5. e3 c5 6. Nb5 Na6 7. h3 Ne4 8. c3 O-O 9. Be2 Bd7 10. O-O Qb6 11. a4 c4 12. Nd2 Nxd2 13. Qxd2 Bxb5 14. axb5 Qxb5 15. b3 Qc6 16. bxc4 dxc4 17. Bf3 Qd7 18. Qb2 e5 19. Qxb7 Qxb7 20. Bxb7 Rab8 21. Bxa6 exf4 22. Bxc4 Rfc8 23. Ra4 Rb2 24. Bd5 Rxc3 25. Rxa7 h5 26. Rxf7 Kh8 27. Rxf4 Rc7 28. h4 Kh7 29. g3 Bh6 30. Rf7+ Rxf7 31. Bxf7 Kg7 32. Bd5 g5 33. hxg5 Bxg5 34. Ra1 h4 35. Ra7+ Kf8 36. Rf7+ Ke8 37. Rf5 Be7 38. g4 h3 39. Rh5 Bb4 40. Rxh3 Be1 41. Rf3 Ke7 42. Kf1 Bb4 43. Rf7+ Ke8 44. Rf5 Rb1+ 45. Kg2 Bd6 46. g5 1-0'),
     ('1. e4 c5 2. Nf3 Nc6 3. Bc4 g6 4. c3 Bg7 5. d4 cxd4 6. cxd4 d6 7. Qb3 Na5 8. Bb5+ Bd7 9. Qa4 Nc6 10. d5 Qa5+ 11. Nc3 Qxa4 12. Bxa4 Nb4 13. Bxd7+ Kxd7 14. Ke2 Nc2 15. Rb1 Nd4+ 16. Nxd4 Bxd4 17. Be3 Bxe3 18. Kxe3 Nf6 19. f3 Rhc8 20. Rhc1 Rc5 21. b4 Rc4 22. Nb5 Rxc1 23. Rxc1 Ne8 24. g4 a6 25. Nd4 Rc8 26. Rxc8 Kxc8 27. h4 h6 28. f4 Nf6 29. Kf3 h5 30. gxh5 gxh5 31. a4 Kd7 32. a5 Ng4 33. Nf5 Nf6 34. Ng3 e6 35. dxe6+ fxe6 36. e5 dxe5 37. fxe5 Nd5 38. Nxh5 Nxb4 39. Nf6+ Ke7 40. h5 Kf7 41. Ne4 Nc6 42. Kf4 Nxa5 43. Ng5+ Kg7 44. Nxe6+ Kh6 45. Nd4 Kxh5 46. Kf5 Nc4 47. e6 a5 48. e7 Nd6+ 49. Ke6 Ne8 50. Kf7 Nd6+ 51. Kf8 a4 52. Nb5 Nxb5 53. e8=Q+ 1-0'),
     ('1. e4 a6 2. d4 e6 3. Nf3 b5 4. Bd3 c5 5. c3 Bb7 6. O-O Nf6 7. Re1 Be7 8. Nbd2 Nc6 9. e5 Nd5 10. Ne4 cxd4 11. cxd4 h6 12. Bd2 Qb6 13. Be3 Rc8 14. Rc1 O-O 15. Bb1 Nxe3 16. fxe3 Nb4 17. Rxc8 Rxc8 18. a3 Nd5 19. Qd3 g6 20. h4 b4 21. h5 Qb5 22. hxg6 Qxd3 23. gxf7+ Kxf7 24. Bxd3 bxa3 25. bxa3 Bxa3 26. Nd6+ Bxd6 27. exd6 Nf6 28. Ne5+ Kg7 29. Rb1 Bd5 30. Bxa6 Rc3 31. Bb5 Rc2 32. Bf1 h5 33. Ra1 Kh6 34. Re1 Rd2 35. Re2 Rd1 36. Rf2 Ng4 37. Nxg4+ hxg4 38. Kh2 Re1 39. Be2 Kg5 40. Kg3 Bc6 41. Bxg4 Rxe3+ 42. Bf3 Rd3 43. Rc2 Bxf3 44. gxf3 Rxd4 45. Rc5+ Kf6 46. f4 Rxd6 47. Kf3 Rd3+ 48. Ke4 Ra3 49. Rh5 d5+ 50. Kd4 Rf3 51. Rh4 Kf5 52. Rh5+ Kxf4 53. Rh6 Re3 54. Rf6+ Kg5 55. Rf8 Re4+ 56. Kd3 Rf4 0-1'),
@@ -4239,10 +4238,11 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
     ('1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Na5 10. Bc2 c5 11. d4 Nd7 12. d5 Bf6 13. Nbd2 g6 14. b4 Nb7 15. a4 cxb4 16. cxb4 bxa4 17. Bxa4 a5 18. Bc6 Rb8 19. b5 Nb6 20. Ba3 a4 21. Qc2 Be7 22. Nc4 Nxc4 23. Qxc4 Qb6 24. Nxe5 Bf6 25. Nf3 Bxa1 26. Rxa1 Nc5 27. Bxc5 Qxc5 28. Qxc5 dxc5 29. Rxa4 Bb7 30. Ne5 Ra8 31. Rxa8 Bxa8 32. Kf1 f5 33. Nd7 Rd8 34. Nb6 Bb7 35. Bxb7 Rb8 36. Bc6 Rxb6 37. e5 Kf7 38. Ke2 Rb8 39. Kd3 1-0'),
     ('1. e4 c5 2. Nf3 d6 3. Bb5+ Nd7 4. O-O a6 5. Bd3 Ngf6 6. Re1 e6 7. c3 b5 8. Bc2 c4 9. a4 Bb7 10. axb5 axb5 11. Rxa8 Qxa8 12. Na3 Be7 13. Nxb5 O-O 14. Qe2 Rc8 15. Na3 d5 16. exd5 Bxd5 17. d4 cxd3 18. Qxd3 h6 19. b4 Be4 20. Qe3 Bxc2 21. Nxc2 Nd5 22. Qd2 Rxc3 23. Bb2 Rc8 24. Nfd4 Qa2 25. Bc1 Bg5 26. Ne3 Qa4 27. b5 Nc5 28. Nc6 Qxb5 29. Nd4 Qa4 30. Bb2 Ne4 31. Qd3 Bxe3 32. Qxe4 Qb4 33. Qb1 Bxd4 0-')
     -- ligne suivant premier select
-    ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3'),
-    -- ligne suivante second select
-    ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3')
+    -- ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3'),
+    -- -- ligne suivante second select
+    -- ('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3')
     ;
+
 
 -- create index btree_index on chessgame_table USING btree (p_chessgame);
 
@@ -4250,25 +4250,33 @@ INSERT INTO chessgame_table(p_chessgame) VALUES
 
 -- explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
 
--- explain analyse
--- SELECT count(*)
--- FROM chessgame_table
--- WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 
 -- explain analyse
 -- SELECT *
 -- FROM chessgame_table
 -- WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
 
+-- explain analyse
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 create index gin on chessgame_table USING GIN (p_chessgame);
+
+-- explain analyse
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
 set enable_seqscan TO OFF;
 
 -- explain analyse SELECT getFirstMoves(p_chessgame, 3) FROM chessgame_table;
 
 -- explain analyse
--- SELECT *
--- FROM chessgame_table
--- WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame @> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 -- explain analyse
 -- SELECT *
@@ -4280,8 +4288,8 @@ set enable_seqscan TO OFF;
 -- FROM chessgame_table
 -- WHERE hasBoard(p_chessgame, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3 )
 
-select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 46);
-select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 45);
+-- select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 46);
+-- select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 45);
 
 
 -- select has_board('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 46);
