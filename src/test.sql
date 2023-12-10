@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS favorite_game;
+DROP TABLE IF EXISTS favoriteGames;
 DROP TABLE IF EXISTS chessgame_table;
 DROP TABLE IF EXISTS chessboard_table;
 
-DROP EXTENSION IF EXISTS chess CASCADE;
-
 CREATE EXTENSION IF NOT EXISTS chess;
 
--- TABLES CREATION
+
+-- CREATE TABLE
+
 
 CREATE TABLE chessgame_table(
     id SERIAL PRIMARY KEY NOT NULL,
@@ -18,6 +18,7 @@ CREATE TABLE favoriteGames(
     id SERIAL PRIMARY KEY NOT NULL,
     p_chessgame chessgame
 );
+
 
 -- INSERTION
 
@@ -5761,23 +5762,39 @@ select * from chessgame_table;
 select getFirstMoves('1. e4 e5 2. Bc4 Nf6', 3);
 select hasBoard('1. e4 e5 2. Bc4 Nf6','rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 3);
 
-SELECT count(*)
-FROM chessgame_table
-WHERE hasOpening(p_chessgame, '1. e4 e5 2. Nf3 Nf6 3. d3' );
+select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 46); -- true
+select hasBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', '3r1r1k/pq3Ppp/3p1R2/8/3Bn1Q1/Pbp5/1PP3PP/1K1R4 w - - 0 24', 45); -- false
 
-SELECT count(*)
-FROM chessgame_table g, favoriteGames f
-WHERE hasOpening(p_chessgame, getFirstMoves(f.games,10));
+select getBoard('1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Bc4 e6 7. Be3 Be7 8. Bb3 O-O 9. Qe2 Qa5 10. O-O-O Nxd4 11. Bxd4 Bd7 12. Kb1 Bc6 13. f4 Rad8 14. Rhf1 b5 15. f5 b4 16. fxe6 bxc3 17. exf7+ Kh8 18. Rf5 Qb4 19. Qf1 Nxe4 20. a3 Qb7 21. Qf4 Ba4 22. Qg4 Bf6 23. Rxf6 Bxb3', 4); -- rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3
 
-explain analyse
-SELECT *
-FROM chessgame_table
-WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
 
+-- OPERATORS
+
+select ('1. e4 e5' = '1. e4 e5',    -- true
+        '1. e4 e5' = '1. e4 c5');   -- false
+
+select ('1. e4 e5' != '1. e4 c5',   -- true
+        '1. e4 e5' != '1. e4 e5');  -- false
+
+select ('1. e4 e5' <= '1. e4 e5',               -- true
+        '1. e4 e5' <= '1. e4 e5 2. Bc4 Nf6',    -- true    
+        '1. e4 e5' <= '1. e4 c5 2. Bc4 Nf6');   -- false
+
+select ('1. e4 e5'<'1. e4 e5 2. Bc4 Nf6',       -- true
+        '1. e4 e5'<'1. e4 c5 2. Bc4 Nf6');      -- false
+
+select ('1. e4 e5' >= '1. e4 e5',               -- true
+        '1. e4 e5 2. Bc4 Nf6' >= '1. e4 e5',    -- true
+        '1. e4 c5 2. Bc4 Nf6' >= '1. e4 e5');   -- false
+
+select ('1. e4 e5 2. Bc4 Nf6' > '1. e4 e5',     -- true
+        '1. e4 f5 2. Bc4 Nf6' > '1. e4 e5',     -- true
+        '1. e4 e5 2. Bc4 Nf6' > '1. e4 f5');    -- false
 
 -- INDEXES
 
--- BTREE
+
+    -- BTREE
 CREATE INDEX chessgame_btree_index ON chessgame_table USING btree (p_chessgame);
 
 set enable_seqscan to off;
@@ -5789,6 +5806,7 @@ from chessgame_table;
 SELECT * FROM chessgame_table WHERE getBoard(p_chessgame,4);
 SELECT * FROM chessgame_table WHERE getFirstMoves(p_chessgame, 15);
 
+explain analyse
 SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame, '1. e4 e5 2. Nf3 Nf6 3. d3' );
@@ -5800,11 +5818,9 @@ WHERE hasOpening(p_chessgame, '1. e4 e5 2. Nf3 Nf6 3. d3' );
 
 
 
-
-
 DROP INDEX IF EXISTS chessgame_btree_index;
 
--- GIN INDEX
+    -- GIN INDEX
 
 CREATE INDEX chessgame_gin_index ON chessgame_table USING gin (p_chessgame gin_chessboard_ops);
 
@@ -5818,3 +5834,4 @@ explain analyse
 SELECT *
 FROM chessgame_table
 WHERE has_board(p_chessgame,'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',3);
+
