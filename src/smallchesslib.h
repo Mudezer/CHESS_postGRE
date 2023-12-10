@@ -486,7 +486,7 @@ static inline uint8_t SCL_coordsToSquare(uint8_t row, uint8_t column);
     4 * SCL_VALUE_BISHOP + 2 * SCL_VALUE_QUEEN + 2 * SCL_VALUE_KING)
 
 #ifndef SCL_RECORD_MAX_LENGTH
-  #define SCL_RECORD_MAX_LENGTH 1024
+  #define SCL_RECORD_MAX_LENGTH 2048
 #endif
 
 #define SCL_RECORD_MAX_SIZE (SCL_RECORD_MAX_LENGTH * 2)
