@@ -37,7 +37,7 @@ COMMENT ON TYPE chessboard IS 'chessboard datatype for PostgreSQL';
 
 
 CREATE TYPE chessgame(
-  internallength = 1024, -- peut etre 512
+  internallength = 1024,
   input          = chessgame_in,
   output         = chessgame_out
 );

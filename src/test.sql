@@ -4252,14 +4252,38 @@ FROM favoriteGames;
 CREATE INDEX btree ON chessgame_table USING BTREE(p_chessgame);
 SET enable_seqscan TO off;
 
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame < '1. e4 c5 2. Nf3 d6 3. d4';
+
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame <= '1. e4 c5 2. Nf3 d6 3. d4';
+
+explain analyse 
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame = '1. e4 c5 2. Nf3 d6 3. d4';
+
+explain analyse 
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame >= '1. e4 c5 2. Nf3 d6 3. d4';
+
+explain analyse 
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame > '1. e4 c5 2. Nf3 d6 3. d4';
+
 explain analyse
 SELECT count(*)
 FROM chessgame_table
 WHERE hasOpening(p_chessgame, '1. e4 c5 2. Nf3 d6 3. d4');
 
+
 SELECT g.id
 FROM chessgame_table g, favoriteGames f
-WHERE hasopening(g.p_chessgame, getFirstMoves(f.p_chessgame, 10));
+WHERE hasOpening(g.p_chessgame, getFirstMoves(f.p_chessgame, 10));
 
 -- Index Gin
 DROP INDEX btree;
@@ -4267,6 +4291,21 @@ CREATE INDEX gin ON chessgame_table USING GIN(p_chessgame);
 
 set enable_seqscan TO off;
 set jit TO off;
+
+explain analyse
+SELECT count(*)
+FROM chessgame_table
+WHERE p_chessgame @> 'rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3';
+
+explain analyse
+SELECT count(*)
+FROM chessgame_table
+WHERE getFirstMoves(p_chessgame, 5) @> 'rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3';
+
+explain analyse
+SELECT count(*)
+FROM chessgame_table
+WHERE getFirstMoves(p_chessgame, 3) = 'rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3';
 
 explain analyse
 SELECT count(*)
